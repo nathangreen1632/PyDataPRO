@@ -1,21 +1,31 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
 import InterviewGenerator from './components/InterviewGenerator';
+import { ProfileAnalyticsPage } from './pages/ProfileAnalyticsPage';
+import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
 
 function App() {
   return (
-    <main className="min-h-screen bg-gray-900 text-white px-4 py-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header / Branding */}
-        <header className="flex items-center justify-between mb-8 border-b border-gray-700 pb-4">
-          <h1 className="text-3xl font-bold tracking-wide">
-            PyData<span className="text-red-500">PRO</span>
-          </h1>
+    <Router>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route
+            path="/"
+            element={
+              <div className="max-w-4xl mx-auto">
+                <InterviewGenerator />
+              </div>
+            }
+          />
+          <Route path="/analytics" element={<ProfileAnalyticsPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        </header>
 
-        {/* Main Generator Section */}
-        <InterviewGenerator />
-      </div>
-    </main>
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
