@@ -25,7 +25,7 @@ def get_jobs():
                 WHERE "salaryMin" IS NOT NULL AND "salaryMax" IS NOT NULL
             """))
 
-            jobs = [dict(row._mapping) for row in result]
+            jobs = [dict(row) for row in result.mappings()]
             return {"jobs": jobs}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
