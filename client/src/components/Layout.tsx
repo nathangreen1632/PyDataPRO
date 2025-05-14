@@ -22,13 +22,22 @@ const Layout: React.FC = () => {
       </Link>
 
       <nav className="flex space-x-6">
-        <Link to="/" className="text-gray-600 dark:text-gray-300 hover:underline">Home</Link>
         {!token && (
           <>
             <Link to="/register" className="text-gray-600 dark:text-gray-300 hover:underline">Register</Link>
             <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:underline">Login</Link>
           </>
         )}
+
+
+        {token && (
+          <>
+            <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:underline">Profile</Link>
+            <Link to="/interview" className="text-gray-600 dark:text-gray-300 hover:underline">Interview Generator</Link>
+          </>
+        )}
+
+
         {token && (
           <>
             <Link to="/analytics" className="text-gray-600 dark:text-gray-300 hover:underline">Analytics</Link>
@@ -40,6 +49,8 @@ const Layout: React.FC = () => {
             </button>
           </>
         )}
+
+
       </nav>
     </div>
 
