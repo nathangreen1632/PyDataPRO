@@ -1,11 +1,20 @@
-from fastapi import APIRouter, HTTPException
+import uuid
+
+from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+from sqlalchemy.orm import Session
+from sqlalchemy import text
 import pandas as pd
+from datetime import datetime, timezone
+
+from server.database import get_db
+from server.utils.auth import get_current_user
+from server.models.user import User
 
 router = APIRouter()
 
-# --- Models ---
+# --- Models for Salary Summary ---
 class Job(BaseModel):
     title: str
     location: Optional[str]
@@ -17,7 +26,7 @@ class AnalyticsResponse(BaseModel):
     top_locations: Dict[str, int]
     common_titles: Dict[str, int]
 
-# --- Endpoint ---
+# --- Salary Summary Endpoint ---
 @router.post("/analytics/salary-summary", response_model=AnalyticsResponse)
 def salary_summary(jobs: List[Job]):
     if not jobs:
@@ -26,20 +35,15 @@ def salary_summary(jobs: List[Job]):
     try:
         df = pd.DataFrame([job.model_dump() for job in jobs])
 
-        # Midpoint salary estimate
         df["salary_mid"] = df[["salary_min", "salary_max"]].mean(axis=1)
-
-        # ✅ Normalize location and title fields
         df["location"] = df["location"].str.strip().str.title()
         df["title"] = df["title"].str.strip().str.title()
-
-        # Calculations
         average_salary = round(df["salary_mid"].dropna().mean(), 2)
 
         def extract_general_location(loc: str) -> str:
             parts = [p.strip() for p in loc.split(",")]
             if len(parts) >= 2:
-                return f"{parts[-2]}, {parts[-1]}"  # e.g. "Austin, Travis County" stays the same
+                return f"{parts[-2]}, {parts[-1]}"
             return loc
 
         df["normalized_location"] = df["location"].dropna().apply(extract_general_location)
@@ -70,3 +74,32 @@ def salary_summary(jobs: List[Job]):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Search Term Logger Endpoint ---
+class SearchLog(BaseModel):
+    query: str
+
+@router.post("/analytics/search-history", status_code=status.HTTP_204_NO_CONTENT)
+def log_search_term(
+    payload: SearchLog,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    now = datetime.now(timezone.utc)
+
+    db.execute(
+        text("""
+            INSERT INTO "SearchTerms" ("id", "userId", "query", "createdAt", "updatedAt")
+            VALUES (:id, :userId, :query, :createdAt, :updatedAt)
+        """),
+        {
+            "id": str(uuid.uuid4()),
+            "userId": str(current_user.id),  # ✅ this must be 'userId', not 'user_id'
+            "query": payload.query.strip(),
+            "createdAt": now,
+            "updatedAt": now
+        }
+    )
+
+    db.commit()
+
