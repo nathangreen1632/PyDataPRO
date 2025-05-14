@@ -23,7 +23,7 @@ const Login: React.FC = () => {
       if (response.ok && data.token) {
         login(data.token);
         toast.success('Logged in successfully!');
-        navigate('/');
+        navigate('/profile');
       } else {
         toast.error(data.message ?? 'Login failed');
       }
