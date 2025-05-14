@@ -5,12 +5,11 @@ from passlib.hash import bcrypt
 from pydantic import BaseModel, EmailStr
 from uuid import uuid4
 
-
 from server.models.user import User
 from server.database import get_db
 from server.utils.auth import create_jwt_token
 
-router = APIRouter(tags=["auth"])  # ❌ no prefix here
+router = APIRouter(tags=["auth"])  # Registered in main with prefix /api/auth
 
 # ------------------------
 # Login Route
@@ -26,16 +25,15 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user or not bcrypt.verify(payload.password, user.passwordHash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    # ✅ Issue token using 'sub' (standard claim)
     token = create_jwt_token({"sub": str(user.id)})
     return {"token": token}
-
 
 # ------------------------
 # Register Route
 # ------------------------
-
 class RegisterRequest(BaseModel):
-    firstName: str  # ✅ match model exactly
+    firstName: str
     lastName: str
     email: EmailStr
     password: str
@@ -66,6 +64,6 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    # ✅ Issue token using 'sub' (standard claim)
     token = create_jwt_token({"sub": str(new_user.id)})
     return {"token": token}
-
