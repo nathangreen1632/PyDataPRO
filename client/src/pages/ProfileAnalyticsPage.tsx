@@ -23,11 +23,11 @@ export const ProfileAnalyticsPage = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const jobRes = await fetch('/jobs');
+        const jobRes = await fetch(`${import.meta.env.VITE_API_URL}/jobs`);
         const jobData = await jobRes.json();
         setJobs(jobData.jobs);
 
-        const summaryRes = await fetch('/analytics/salary-summary', {
+        const summaryRes = await fetch(`${import.meta.env.VITE_API_URL}/analytics/salary-summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(jobData.jobs),
