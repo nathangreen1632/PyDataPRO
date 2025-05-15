@@ -10,10 +10,8 @@ from server.database import get_db
 from server.models.user import User
 from dotenv import load_dotenv
 
-# 🔐 Load environment variables
 load_dotenv()
 
-# ✅ Pull secret from environment (NOT hardcoded)
 SECRET_KEY = os.getenv("JWT_SECRET")
 if not SECRET_KEY:
     raise RuntimeError("JWT_SECRET not set in .env")
@@ -21,18 +19,12 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 EXPIRATION_MINUTES = 90
 
-# ------------------------
-# ✅ Token creation
-# ------------------------
 def create_jwt_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRATION_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# ------------------------
-# ✅ Token validation
-# ------------------------
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def get_current_user(
@@ -48,7 +40,6 @@ def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
-        # ✅ Check for either sub or id
         user_id = payload.get("sub") or payload.get("id")
         if user_id is None:
             raise credentials_exception
