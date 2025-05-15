@@ -16,7 +16,7 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return JSONResponse(content={"message": "PyDataPRO API is running!"})
 
