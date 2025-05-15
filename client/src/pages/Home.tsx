@@ -1,4 +1,3 @@
-// client/src/pages/Home.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -15,8 +14,6 @@ const Home: React.FC = () => {
         analysts, and data professionals
       </p>
 
-      {/* Spline Placeholder */}
-
       <div className="w-full max-w-4xl h-[700px] md:h-[700px] rounded-2xl overflow-hidden shadow-inner mb-10">
         {/* @ts-expect-error: custom element not known to TS */}
         <spline-viewer
@@ -25,9 +22,6 @@ const Home: React.FC = () => {
           />
       </div>
 
-
-
-      {/* Call to Action */}
       <div className="flex space-x-6">
         <Link
           to="/register"
