@@ -13,7 +13,6 @@ from server.models.user import User
 
 router = APIRouter()
 
-# --- Models for Salary Summary ---
 class Job(BaseModel):
     title: str
     location: Optional[str]
@@ -39,7 +38,6 @@ def salary_summary(payload: JobPayload):
         raise HTTPException(status_code=400, detail="No job data provided.")
 
     try:
-        # 👇 no aliasing, now camelCase
         df = pd.DataFrame([job.dict() for job in jobs])
 
         df["salary_mid"] = df[["salaryMin", "salaryMax"]].mean(axis=1)
@@ -83,7 +81,6 @@ def salary_summary(payload: JobPayload):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# --- Search Term Logger Endpoint ---
 class SearchLog(BaseModel):
     query: str
 
