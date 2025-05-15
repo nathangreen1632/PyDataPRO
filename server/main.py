@@ -20,7 +20,7 @@ app = FastAPI(lifespan=lifespan)
 # ✅ CORS middleware to allow frontend -> backend calls
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://pydatapro.onrender.com", "http://localhost:5173"],
+    allow_origins=["https://pydatapro-fe.onrender.com", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
