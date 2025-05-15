@@ -1,5 +1,4 @@
 import uuid
-
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -21,15 +20,22 @@ class Job(BaseModel):
     salary_min: Optional[float]
     salary_max: Optional[float]
 
+
+
+class JobPayload(BaseModel):
+    jobs: List[Job]
+
+    class Config:
+        populate_by_name = True
+
+
+
 class AnalyticsResponse(BaseModel):
     average_salary: float
     top_locations: Dict[str, int]
     common_titles: Dict[str, int]
 
-class JobPayload(BaseModel):
-    jobs: List[Job]
 
-# --- Salary Summary Endpoint ---
 @router.post("/analytics/salary-summary", response_model=AnalyticsResponse)
 def salary_summary(payload: JobPayload):
     jobs = payload.jobs
@@ -38,7 +44,8 @@ def salary_summary(payload: JobPayload):
         raise HTTPException(status_code=400, detail="No job data provided.")
 
     try:
-        df = pd.DataFrame([job.model_dump() for job in jobs])
+        # 👇 uses camelCase keys in DataFrame
+        df = pd.DataFrame([job.model_dump(by_alias=True) for job in jobs])
 
         df["salary_mid"] = df[["salary_min", "salary_max"]].mean(axis=1)
         df["location"] = df["location"].str.strip().str.title()
@@ -80,9 +87,12 @@ def salary_summary(payload: JobPayload):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+
 # --- Search Term Logger Endpoint ---
 class SearchLog(BaseModel):
     query: str
+
 
 @router.post("/analytics/search-history", status_code=status.HTTP_204_NO_CONTENT)
 def log_search_term(
@@ -99,7 +109,7 @@ def log_search_term(
         """),
         {
             "id": str(uuid.uuid4()),
-            "userId": str(current_user.id),  # ✅ this must be 'userId', not 'user_id'
+            "userId": str(current_user.id),
             "query": payload.query.strip(),
             "createdAt": now,
             "updatedAt": now
@@ -107,4 +117,3 @@ def log_search_term(
     )
 
     db.commit()
-
