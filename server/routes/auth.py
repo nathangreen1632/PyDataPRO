@@ -18,27 +18,33 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+
 @router.post("/login")
 def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
-    try:
-        print("📥 Login attempt for:", payload.email)
+    print("🧪 Login attempt:", payload.email)
 
-        user = db.query(User).filter(User.email == payload.email).first()
-        if not user:
-            print("❌ No user found with that email.")
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+    user = db.query(User).filter(User.email == payload.email).first()
 
-        if not bcrypt.verify(payload.password, user.passwordHash):
-            print("❌ Password incorrect.")
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user:
+        print("❌ User not found")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        token = create_jwt_token({"sub": str(user.id)})
-        print("✅ Token created for:", user.email)
-        return {"token": token}
+    print("👉 user object:", user)
+    print("👉 passwordHash value:", user.passwordHash)
 
-    except Exception as e:
-        print("🔥 Unexpected error during login:", e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+    if not user.passwordHash:
+        print("⚠️ passwordHash is None or empty for user:", user.email)
+        raise HTTPException(status_code=500, detail="Server error: invalid password hash")
+
+    if not bcrypt.verify(payload.password, user.passwordHash):
+        print("❌ Password verification failed")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = create_jwt_token({"sub": str(user.id)})
+    print("✅ Login successful, token issued")
+
+    return {"token": token}
+
 
 
 # ------------------------
