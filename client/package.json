@@ -3,12 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+  "homepage": ".",
+  "engines": {
+    "node": ">=18"
   },
+  "scripts": {
+  "dev": "vite",
+  "build": "tsc -b && vite build --mode production",
+  "start": "vite preview --port 8080",
+  "lint": "eslint .",
+  "preview": "vite preview"
+},
   "dependencies": {
     "@tailwindcss/vite": "^4.1.6",
     "lucide-react": "^0.510.0",
