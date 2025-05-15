@@ -52,7 +52,7 @@ const InterviewGenerator = () => {
 
       {questions.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-lg font-semibold text-white text-center mb-2">Generated Questions</h2>
+          <h2 className="text-lg font-semibold text-white text-center mb-2">Interview Questions</h2>
           <ul className="space-y-3 list-disc list-inside text-gray-300">
             {questions.map((q, idx) => (
               <li key={idx} className="text-base">
