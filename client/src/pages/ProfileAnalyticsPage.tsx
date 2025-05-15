@@ -7,8 +7,8 @@ import { API_BASE } from '../utils/api.ts';
 interface Job {
   title: string;
   location: string;
-  salary_min?: number;
-  salary_max?: number;
+  salaryMin?: number;
+  salaryMax?: number;
 }
 
 interface SummaryData {
@@ -42,7 +42,7 @@ export const ProfileAnalyticsPage = () => {
         const summaryRes = await fetch(`${API_BASE}/analytics/salary-summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jobData.jobs), // not wrapped in { jobs: ... }
+          body: JSON.stringify({ jobs: jobData.jobs }), // ✅ Wrapped correctly
         });
 
         if (!summaryRes.ok) {
