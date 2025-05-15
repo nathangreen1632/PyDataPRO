@@ -31,7 +31,7 @@ export const ProfileAnalyticsPage = () => {
         const summaryRes = await fetch(`${API_BASE}/analytics/salary-summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jobData.jobs),
+          body: JSON.stringify({ jobs: jobData.jobs }),
         });
 
         const summaryData = await summaryRes.json();
