@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import create_engine, text
 import os
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from server.database import get_db
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,20 +15,15 @@ DB_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.ge
 engine = create_engine(DB_URL, pool_pre_ping=True)
 
 @router.get("/jobs")
-def get_jobs():
+def get_jobs(db: Session = Depends(get_db)):
     try:
-        with engine.connect() as conn:
-            result = conn.execute(text("""
-                SELECT 
-                    title, 
-                    location, 
-                    "salaryMin" AS salary_min, 
-                    "salaryMax" AS salary_max
-                FROM "Jobs"
-                WHERE "salaryMin" IS NOT NULL AND "salaryMax" IS NOT NULL
-            """))
-
-            jobs = [dict(row) for row in result.mappings()]
-            return {"jobs": jobs}
+        rows = db.execute(text("""
+          SELECT 
+            title, location, "salaryMin" AS salary_min, "salaryMax" AS salary_max
+          FROM "Jobs" 
+          WHERE "salaryMin" IS NOT NULL AND "salaryMax" IS NOT NULL
+        """)).all()
+        return {"jobs": [dict(r._mapping) for r in rows]}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print("🔥 /jobs failed:", e)
+        raise HTTPException(500, detail=str(e))
