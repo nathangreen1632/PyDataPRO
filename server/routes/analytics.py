@@ -26,9 +26,14 @@ class AnalyticsResponse(BaseModel):
     top_locations: Dict[str, int]
     common_titles: Dict[str, int]
 
+class JobPayload(BaseModel):
+    jobs: List[Job]
+
 # --- Salary Summary Endpoint ---
 @router.post("/analytics/salary-summary", response_model=AnalyticsResponse)
-def salary_summary(jobs: List[Job]):
+def salary_summary(payload: JobPayload):
+    jobs = payload.jobs
+
     if not jobs:
         raise HTTPException(status_code=400, detail="No job data provided.")
 
