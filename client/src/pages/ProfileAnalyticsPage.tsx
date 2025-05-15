@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import TopLocationsBarChart from '../components/charts/TopLocationsBarChart';
 import AverageSalaryCard from '../components/charts/AverageSalaryCard';
 import JobTitlePieChart from '../components/charts/JobTitlePieChart';
-import {API_BASE} from "../utils/api.ts";
+import { API_BASE } from '../utils/api.ts';
 
 interface Job {
   title: string;
@@ -25,19 +25,36 @@ export const ProfileAnalyticsPage = () => {
     const fetchAnalytics = async () => {
       try {
         const jobRes = await fetch(`${API_BASE}/jobs`);
+        if (!jobRes.ok) {
+          const errorText = await jobRes.text();
+          console.error('🔥 Job fetch failed:', errorText);
+          return;
+        }
+
         const jobData = await jobRes.json();
+        if (!jobData.jobs?.length) {
+          console.warn('⚠️ No jobs returned from /jobs endpoint, skipping summary.');
+          return;
+        }
+
         setJobs(jobData.jobs);
 
         const summaryRes = await fetch(`${API_BASE}/analytics/salary-summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobs: jobData.jobs }),
+          body: JSON.stringify(jobData.jobs), // not wrapped in { jobs: ... }
         });
+
+        if (!summaryRes.ok) {
+          const summaryError = await summaryRes.text();
+          console.error('🔥 Salary summary fetch failed:', summaryError);
+          return;
+        }
 
         const summaryData = await summaryRes.json();
         setSummary(summaryData);
       } catch (err) {
-        console.error('Error loading analytics:', err);
+        console.error('💥 Error loading analytics:', err);
       }
     };
 
