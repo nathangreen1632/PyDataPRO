@@ -14,7 +14,6 @@ def get_dashboard_data(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Get last 3 resumes
     resumes = (
         db.query(Resume)
         .filter(Resume.user_id == current_user.id)
@@ -22,7 +21,6 @@ def get_dashboard_data(
         .all()
     )
 
-    # Get last 3 favorites
     favorites = (
         db.query(FavoriteJob)
         .filter(FavoriteJob.user_id == current_user.id)
@@ -30,7 +28,6 @@ def get_dashboard_data(
         .all()
     )
 
-    # ✅ Fix: use camelCase field names matching your DB schema
     recent_terms = (
         db.query(SearchTerm.query)
         .filter(SearchTerm.userId == current_user.id)
@@ -38,7 +35,6 @@ def get_dashboard_data(
         .all()
     )
 
-    # Extract titles for keyword analysis
     titles = [str(r.title or "") for r in resumes] + [str(f.title or "") for f in favorites]
     combined_text = " ".join(titles).lower()
     keywords = [
