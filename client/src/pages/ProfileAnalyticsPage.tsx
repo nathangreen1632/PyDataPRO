@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import TopLocationsBarChart from '../components/charts/TopLocationsBarChart';
 import AverageSalaryCard from '../components/charts/AverageSalaryCard';
 import JobTitlePieChart from '../components/charts/JobTitlePieChart';
+import {API_BASE} from "../utils/api.ts";
 
 interface Job {
   title: string;
@@ -23,11 +24,11 @@ export const ProfileAnalyticsPage = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const jobRes = await fetch(`${import.meta.env.VITE_API_URL}/jobs`);
+        const jobRes = await fetch(`${API_BASE}/jobs`);
         const jobData = await jobRes.json();
         setJobs(jobData.jobs);
 
-        const summaryRes = await fetch(`${import.meta.env.VITE_API_URL}/analytics/salary-summary`, {
+        const summaryRes = await fetch(`${API_BASE}/analytics/salary-summary`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(jobData.jobs),
