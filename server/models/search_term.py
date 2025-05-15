@@ -10,7 +10,6 @@ class SearchTerm(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    # 🔥 Use column name override to match camelCase exactly
     userId = Column("userId", UUID(as_uuid=True), ForeignKey("Users.id"), nullable=False)
     query = Column(String, nullable=False)
 
