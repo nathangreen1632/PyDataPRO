@@ -87,7 +87,6 @@ const Register: React.FC = () => {
           required
         />
 
-        {/* Password Input */}
         <div className="relative">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -108,7 +107,6 @@ const Register: React.FC = () => {
           </button>
         </div>
 
-        {/* Confirm Password Input */}
         <div className="relative">
           <input
             type={showConfirmPassword ? 'text' : 'password'}
