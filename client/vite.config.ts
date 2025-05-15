@@ -31,6 +31,6 @@ export default defineConfig({
   preview: {
     host: true,
     port: 4173,
-    allowedHosts: ['pydatapro-fe.onrender.com'],
+    allowedHosts: ['pydatapro-fe.onrender.com', 'pydatapro.com', 'www.pydatapro.com'],
   },
 });
