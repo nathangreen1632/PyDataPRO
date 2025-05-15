@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../utils/api';
+
 
 const InterviewGenerator = () => {
   const [jobTitle, setJobTitle] = useState('');
@@ -11,7 +13,7 @@ const InterviewGenerator = () => {
     setQuestions([]);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/generate-questions`, {
+      const res = await fetch(`${API_BASE}/generate-questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
