@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE } from "../utils/api";
 
 interface Resume {
   id: number;
@@ -26,7 +27,7 @@ export const Profile = () => {
   useEffect(() => {
   const fetchDashboard = async () => {
     try {
-      const res = await fetch("/api/dashboard", {
+      const res = await fetch(`${API_BASE}/api/dashboard`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
