@@ -34,7 +34,6 @@ export const Profile = () => {
       });
 
       if (!res.ok) {
-        // ✅ Instead of throwing, return a default fallback
         console.warn(`⚠️ Dashboard fetch failed: ${res.status}`);
         setData({
           userName: "Unauthorized",
