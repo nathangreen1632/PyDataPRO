@@ -20,14 +20,26 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email).first()
+    try:
+        print("📥 Login attempt for:", payload.email)
 
-    if not user or not bcrypt.verify(payload.password, user.passwordHash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        user = db.query(User).filter(User.email == payload.email).first()
+        if not user:
+            print("❌ No user found with that email.")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # ✅ Issue token using 'sub' (standard claim)
-    token = create_jwt_token({"sub": str(user.id)})
-    return {"token": token}
+        if not bcrypt.verify(payload.password, user.passwordHash):
+            print("❌ Password incorrect.")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        token = create_jwt_token({"sub": str(user.id)})
+        print("✅ Token created for:", user.email)
+        return {"token": token}
+
+    except Exception as e:
+        print("🔥 Unexpected error during login:", e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 # ------------------------
 # Register Route
