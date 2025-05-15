@@ -21,29 +21,28 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
-    print("🧪 Login attempt:", payload.email)
+    try:
+        print("🧪 Login attempt:", payload.email)
 
-    user = db.query(User).filter(User.email == payload.email).first()
+        user = db.query(User).filter(User.email == payload.email).first()
+        print("👉 user object:", user)
 
-    if not user:
-        print("❌ User not found")
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not user or not user.passwordHash:
+            print("❌ Invalid credentials")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    print("👉 user object:", user)
-    print("👉 passwordHash value:", user.passwordHash)
+        if not bcrypt.verify(payload.password, user.passwordHash):
+            print("❌ Password incorrect", payload.password)
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    if not user.passwordHash:
-        print("⚠️ passwordHash is None or empty for user:", user.email)
-        raise HTTPException(status_code=500, detail="Server error: invalid password hash")
+        token = create_jwt_token({"sub": str(user.id)})
+        print("✅ Login successful", token)
+        return {"token": token}
 
-    if not bcrypt.verify(payload.password, user.passwordHash):
-        print("❌ Password verification failed")
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        print("🔥 UNHANDLED ERROR:", e)
+        raise HTTPException(status_code=500, detail="Internal server error", headers={"WWW-Authenticate": "Bearer)"})
 
-    token = create_jwt_token({"sub": str(user.id)})
-    print("✅ Login successful, token issued")
-
-    return {"token": token}
 
 
 
