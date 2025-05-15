@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from server.routes import interview, analytics, jobs, auth, dashboard
@@ -16,10 +17,20 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# ✅ CORS middleware to allow frontend -> backend calls
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://pydatapro.onrender.com", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return JSONResponse(content={"message": "PyDataPRO API is running!"})
 
+# ✅ Route includes
 app.include_router(interview.router)
 app.include_router(analytics.router)
 app.include_router(jobs.router)
