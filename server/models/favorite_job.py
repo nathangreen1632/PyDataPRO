@@ -10,7 +10,6 @@ class FavoriteJob(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    # 🔥 Align casing: use "userId" in DB, but user_id in Python
     user_id = Column("userId", UUID(as_uuid=True), ForeignKey("Users.id"), nullable=False)
 
     title = Column(String, nullable=False)
@@ -19,7 +18,6 @@ class FavoriteJob(Base):
     location = Column(String, nullable=True)
     description = Column(String, nullable=True)
 
-    # ✅ Add missing updatedAt column (if used in dashboard)
     createdAt = Column("createdAt", DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updatedAt = Column("updatedAt", DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
