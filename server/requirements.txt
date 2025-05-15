@@ -9,7 +9,6 @@ click==8.2.0
 cryptography==44.0.3
 distro==1.9.0
 dnspython==2.7.0
-dotenv==0.9.9
 ecdsa==0.19.1
 eventlet==0.39.1
 falcon==4.0.2
@@ -32,7 +31,7 @@ passlib==1.7.4
 psycopg2-binary==2.9.10
 pyasn1==0.4.8
 pycparser==2.22
-pydantic==2.11.4
+pydantic[email]==2.11.4
 pydantic_core==2.33.2
 pymongo==4.12.1
 python-dateutil==2.9.0.post0
