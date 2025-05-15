@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-import jwt
+import jwt as pyjwt
 import uuid
 import os
 
@@ -28,7 +28,7 @@ def create_jwt_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRATION_MINUTES)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return pyjwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # ------------------------
 # ✅ Token validation
@@ -46,7 +46,7 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = pyjwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         # ✅ Check for either sub or id
         user_id = payload.get("sub") or payload.get("id")
@@ -55,7 +55,7 @@ def get_current_user(
 
         user_uuid = uuid.UUID(user_id)
 
-    except (jwt.PyJWTError, ValueError):
+    except (pyjwt.PyJWTError, ValueError):
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_uuid).first()
