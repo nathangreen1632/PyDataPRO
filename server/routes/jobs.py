@@ -19,7 +19,7 @@ def get_jobs(db: Session = Depends(get_db)):
     try:
         rows = db.execute(text("""
           SELECT 
-            title, location, "salaryMin" AS salary_min, "salaryMax" AS salary_max
+            title, location, "salaryMin", "salaryMax"
           FROM "Jobs" 
           WHERE "salaryMin" IS NOT NULL AND "salaryMax" IS NOT NULL
         """)).all()
