@@ -9,11 +9,8 @@ from server.models.user import User
 from server.database import get_db
 from server.utils.auth import create_jwt_token
 
-router = APIRouter(tags=["auth"])  # Registered in main with prefix /api/auth
+router = APIRouter(tags=["auth"])
 
-# ------------------------
-# Login Route
-# ------------------------
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -22,21 +19,16 @@ class LoginRequest(BaseModel):
 @router.post("/login")
 def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
     try:
-        print("🧪 Login attempt:", payload.email)
-
         user = db.query(User).filter(User.email == payload.email).first()
-        print("👉 user object:", user)
+
 
         if not user or not user.passwordHash:
-            print("❌ Invalid credentials")
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         if not bcrypt.verify(payload.password, user.passwordHash):
-            print("❌ Password incorrect", payload.password)
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         token = create_jwt_token({"sub": str(user.id)})
-        print("✅ Login successful", token)
         return {"token": token}
 
     except Exception as e:
@@ -44,11 +36,6 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Internal server error", headers={"WWW-Authenticate": "Bearer)"})
 
 
-
-
-# ------------------------
-# Register Route
-# ------------------------
 class RegisterRequest(BaseModel):
     firstName: str
     lastName: str
@@ -81,6 +68,5 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    # ✅ Issue token using 'sub' (standard claim)
     token = create_jwt_token({"sub": str(new_user.id)})
     return {"token": token}
