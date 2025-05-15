@@ -17,17 +17,12 @@ router = APIRouter()
 class Job(BaseModel):
     title: str
     location: Optional[str]
-    salary_min: Optional[float]
-    salary_max: Optional[float]
-
+    salaryMin: Optional[float]
+    salaryMax: Optional[float]
 
 
 class JobPayload(BaseModel):
     jobs: List[Job]
-
-    class Config:
-        populate_by_name = True
-
 
 
 class AnalyticsResponse(BaseModel):
@@ -44,10 +39,10 @@ def salary_summary(payload: JobPayload):
         raise HTTPException(status_code=400, detail="No job data provided.")
 
     try:
-        # 👇 uses camelCase keys in DataFrame
-        df = pd.DataFrame([job.model_dump(by_alias=True) for job in jobs])
+        # 👇 no aliasing, now camelCase
+        df = pd.DataFrame([job.dict() for job in jobs])
 
-        df["salary_mid"] = df[["salary_min", "salary_max"]].mean(axis=1)
+        df["salary_mid"] = df[["salaryMin", "salaryMax"]].mean(axis=1)
         df["location"] = df["location"].str.strip().str.title()
         df["title"] = df["title"].str.strip().str.title()
         average_salary = round(df["salary_mid"].dropna().mean(), 2)
@@ -86,7 +81,6 @@ def salary_summary(payload: JobPayload):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 # --- Search Term Logger Endpoint ---
