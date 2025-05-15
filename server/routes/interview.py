@@ -41,7 +41,6 @@ async def generate_questions(req: JobRequest):
 
         raw_output = response.choices[0].message.content.strip()
 
-        # Remove Markdown code block syntax if it exists
         if raw_output.startswith("```"):
             raw_output = re.sub(r"^```(?:json)?\n?", "", raw_output)
             raw_output = re.sub(r"\n?```$", "", raw_output)
