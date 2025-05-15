@@ -9,12 +9,12 @@ import {
 } from 'recharts';
 
 interface Props {
-  locations: Record<string, number>; // 👈 fixed type
+  locations: Record<string, number>;
 }
 
 const TopLocationsBarChart = ({ locations }: Props) => {
   const data = Object.entries(locations).map(([name, count]) => ({
-    location: name, // 👈 used in XAxis
+    location: name,
     count,
   }));
 
