@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { API_BASE } from "../utils/api";
+import {CareerSuggestionsCard} from "../components/CareerSuggestionsCard.tsx";
 
 interface Resume {
   id: number;
   title: string;
+  content: string;
   created_at: string;
 }
 
@@ -131,6 +133,23 @@ export const Profile = () => {
           )}
         </div>
       </section>
+
+      {/* 🧭 Career Suggestions Widget Section */}
+
+      {(() => {
+        console.log("📄 Resume content:", data?.resumes?.[0]?.content);
+        console.log("🆔 userId:", localStorage.getItem("userId"));
+        return null;
+      })()}
+
+      {data?.resumes?.[0]?.content && localStorage.getItem("userId") && (
+        <section>
+          <CareerSuggestionsCard
+            resume={data.resumes[0].content}
+            userId={localStorage.getItem("userId")!}
+          />
+        </section>
+      )}
     </div>
   );
 };
