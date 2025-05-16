@@ -32,6 +32,7 @@ const Layout: React.FC = () => {
           <>
             <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:underline">Profile</Link>
             <Link to="/interview" className="text-gray-600 dark:text-gray-300 hover:underline">Interview Generator</Link>
+            <Link to="/career-path" className="text-gray-600 dark:text-gray-300 hover:underline">Career Path</Link>
           </>
         )}
 
