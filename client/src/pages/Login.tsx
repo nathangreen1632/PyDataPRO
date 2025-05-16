@@ -23,6 +23,7 @@ const Login: React.FC = () => {
 
       if (response.ok && data.token) {
         login(data.token);
+        localStorage.setItem("userId", data.user.id);
         toast.success('Logged in successfully!');
         navigate('/profile');
       } else {
