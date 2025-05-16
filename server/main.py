@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from server.routes import interview, analytics, jobs, auth, dashboard
+from server.routes.suggestions import router as suggestionsRouter
 
 load_dotenv()
 
@@ -29,6 +30,7 @@ app.add_middleware(
 def root():
     return JSONResponse(content={"message": "PyDataPRO API is running!"})
 
+app.include_router(suggestionsRouter, prefix="/api", tags=["Career Suggestions"])
 app.include_router(interview.router)
 app.include_router(analytics.router)
 app.include_router(jobs.router)
