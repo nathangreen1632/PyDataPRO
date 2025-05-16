@@ -51,7 +51,7 @@ def get_dashboard_data(
     return {
         "userName": current_user.firstName,
         "resumes": [
-            {"id": r.id, "title": r.title, "created_at": r.created_at.isoformat()}
+            {"id": r.id, "title": r.title, "content": r.content, "created_at": r.created_at.isoformat()}
             for r in resumes
         ],
         "favorites": [
