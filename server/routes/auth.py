@@ -29,7 +29,14 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         token = create_jwt_token({"sub": str(user.id)})
-        return {"token": token}
+        return {
+            "token": token,
+            "user": {
+                "id": user.id,
+                "firstName": user.firstName
+            }
+        }
+
 
     except Exception as e:
         print("🔥 UNHANDLED ERROR:", e)
@@ -69,4 +76,11 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     token = create_jwt_token({"sub": str(new_user.id)})
-    return {"token": token}
+    return {
+        "token": token,
+        "user": {
+            "id": new_user.id,
+            "firstName": new_user.firstName
+        }
+    }
+
