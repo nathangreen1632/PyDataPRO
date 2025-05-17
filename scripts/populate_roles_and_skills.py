@@ -1,7 +1,9 @@
 # server/scripts/populate_roles_and_skills.py
+
 import os
 import spacy
 import psycopg2
+import uuid
 from collections import defaultdict
 from dotenv import load_dotenv
 
@@ -22,7 +24,7 @@ def main():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
-    cur.execute("SELECT title, description FROM Jobs WHERE description IS NOT NULL;")
+    cur.execute("SELECT title, description FROM jobs WHERE description IS NOT NULL;")
     rows = cur.fetchall()
 
     role_map = defaultdict(set)
@@ -32,14 +34,14 @@ def main():
 
     for title, skills in role_map.items():
         cur.execute(
-            "INSERT INTO rolesAndSkills (roleTitle, requiredSkills) VALUES (%s, %s)",
-            (title, list(skills)[:30])
+            "INSERT INTO rolesandskills (id, roletitle, requiredskills) VALUES (%s, %s, %s)",
+            (str(uuid.uuid4()), title, list(skills)[:30])
         )
 
     conn.commit()
     cur.close()
     conn.close()
-    print("rolesAndSkills populated.")
+    print("✅ rolesandskills table populated successfully.")
 
 if __name__ == "__main__":
     main()
