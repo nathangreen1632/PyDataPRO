@@ -6,16 +6,10 @@ import re
 
 nlp = spacy.load("en_core_web_trf")
 
-
 def extract_skills_section(resume_text: str) -> str:
-    """
-    Extract the content under the '## Skills' section, stopping at the next header (## or #).
-    """
-    match = re.search(r"## Skills(.*?)## ", resume_text, re.DOTALL | re.IGNORECASE)
+    match = re.search(r"## Skills(.*?)(## |# )", resume_text, re.DOTALL | re.IGNORECASE)
     if match:
         return match.group(1).strip()
-
-    # Fallback: if no section header found, return empty
     return ""
 
 def extract_skills_from_resume(resume_text: str) -> List[str]:
@@ -24,7 +18,6 @@ def extract_skills_from_resume(resume_text: str) -> List[str]:
         return []
 
     doc = nlp(skill_text)
-
     tokens = {
         token.text.lower()
         for token in doc
@@ -37,14 +30,10 @@ def extract_skills_from_resume(resume_text: str) -> List[str]:
 
     return list(tokens)
 
-
-
-
-
 def suggest_roles(user_skills: List[str], db: Session) -> List[Dict]:
     stmt = text("""
-        SELECT roleTitle, requiredSkills
-        FROM rolesAndSkills
+        SELECT roletitle, requiredskills
+        FROM rolesandskills
     """)
     result = db.execute(stmt).fetchall()
 
