@@ -44,7 +44,7 @@ def extract_skills_from_resume(resume_text: str) -> List[str]:
 def suggest_roles(user_skills: List[str], db: Session) -> List[Dict]:
     stmt = text("""
         SELECT roleTitle, requiredSkills
-        FROM rolesandskills
+        FROM rolesAndSkills
     """)
     result = db.execute(stmt).fetchall()
 
