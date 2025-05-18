@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActivityDetector } from './useActivityDetector';
 import { useAuth } from './useAuth';
 
-const INACTIVITY_LIMIT = 3 * 60 * 1000;
+const INACTIVITY_LIMIT = 15 * 60 * 1000;
 const COUNTDOWN_LIMIT = 2 * 60 * 1000;
 
 export const useSessionManager = () => {
