@@ -21,6 +21,7 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
     try:
         user = db.query(User).filter(User.email == payload.email).first()
 
+        assert isinstance(user, User)
 
         if not user or not user.passwordHash:
             raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -28,11 +29,16 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
         if not bcrypt.verify(payload.password, user.passwordHash):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        token = create_jwt_token({"sub": str(user.id)})
+
+        token = create_jwt_token(user)
+
         return {
             "token": token,
             "user": {
                 "id": user.id,
+                "email": user.email,
+                "role": user.role,
+                "lastName": user.lastName,
                 "firstName": user.firstName
             }
         }
@@ -75,11 +81,15 @@ def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    token = create_jwt_token({"sub": str(new_user.id)})
+    token = create_jwt_token(new_user)
+
     return {
         "token": token,
         "user": {
             "id": new_user.id,
+            "email": new_user.email,
+            "role": new_user.role,
+            "lastName": new_user.lastName,
             "firstName": new_user.firstName
         }
     }
