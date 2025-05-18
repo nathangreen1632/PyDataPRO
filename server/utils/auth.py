@@ -19,11 +19,19 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 EXPIRATION_MINUTES = 90
 
-def create_jwt_token(data: dict) -> str:
-    to_encode = data.copy()
+def create_jwt_token(user: User) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRATION_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    payload = {
+        "id": str(user.id),
+        "email": user.email,
+        "role": user.role,
+        "iat": datetime.now(timezone.utc),
+        "exp": expire,
+        "aud": "pydatapro_user",
+        "iss": "PyDataPro",
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -38,7 +46,7 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], audience="pydatapro_user", issuer="PyDataPro")
 
         user_id = payload.get("sub") or payload.get("id")
         if user_id is None:
