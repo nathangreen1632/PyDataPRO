@@ -106,7 +106,7 @@ export const Profile = () => {
         <div className="flex flex-wrap gap-2">
           {Array.isArray(data?.keywords) ? (
             data.keywords.map((k) => (
-              <span key={k} className="bg-emerald-600 px-3 py-1 rounded-full text-sm">
+              <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm">
                 {k}
               </span>
             ))

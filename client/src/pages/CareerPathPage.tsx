@@ -86,7 +86,7 @@ const CareerPathPage = () => {
             data.skillsExtracted.map((skill, i) => (
               <span
                 key={i}
-                className="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm"
+                className="bg-blue-700 text-white px-3 py-1 rounded-full text-sm"
               >
                 {skill}
               </span>

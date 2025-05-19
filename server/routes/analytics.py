@@ -30,7 +30,7 @@ class AnalyticsResponse(BaseModel):
     common_titles: Dict[str, int]
 
 
-@router.post("/analytics/salary-summary", response_model=AnalyticsResponse)
+@router.post("/salary-summary", response_model=AnalyticsResponse)
 def salary_summary(payload: JobPayload):
     jobs = payload.jobs
 
@@ -85,7 +85,7 @@ class SearchLog(BaseModel):
     query: str
 
 
-@router.post("/analytics/search-history", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/search-history", status_code=status.HTTP_204_NO_CONTENT)
 def log_search_term(
     payload: SearchLog,
     db: Session = Depends(get_db),
