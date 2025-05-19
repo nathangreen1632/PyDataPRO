@@ -39,7 +39,7 @@ def root():
 
 app.include_router(suggestionsRouter, prefix="/api", tags=["Career Suggestions"])
 app.include_router(interview.router)
-app.include_router(analytics.router)
+app.include_router(analytics.router, prefix="/analytics")
 app.include_router(jobs.router)
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
