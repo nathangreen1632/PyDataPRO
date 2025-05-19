@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Home: React.FC = () => {
   return (
-    <div className="flex flex-col items-center pt-24 pb-12 min-h-[85vh] bg-gray-900 text-white px-4">
+    <div className="flex flex-col items-center pb-12 min-h-[85vh] bg-gray-900 text-white px-4">
       {/* Hero Section */}
       <h1 className="text-4xl md:text-4xl font-bold text-center mb-4">
         Welcome to <span className="text-white">PyData</span>
@@ -14,13 +14,14 @@ const Home: React.FC = () => {
         analysts, and data professionals
       </p>
 
-      <div className="w-full max-w-4xl h-[700px] md:h-[700px] rounded-2xl overflow-hidden shadow-inner mb-10">
+      <div className="w-full max-w-4xl h-[400px] sm:h-[400px] md:h-[500px] lg:h-[700px] rounded-2xl overflow-hidden shadow-inner mb-10">
         {/* @ts-expect-error: custom element not known to TS */}
         <spline-viewer
           url="https://prod.spline.design/mC6PnZYNXmAiFRZr/scene.splinecode"
-          style={{width: '100%', height: '100%', border: 'none'}}
-          />
+          style={{ width: '100%', height: '100%', border: 'none' }}
+        />
       </div>
+
 
       <div className="flex space-x-6">
         <Link
