@@ -20,7 +20,14 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://pydatapro-fe.onrender.com", "http://localhost:5173", 'https://www.pydatapro.com', 'https://pydatapro.com'],
+    allow_origins=[
+        "https://pydatapro-fe.onrender.com",
+        "http://localhost:5173",
+        "https://www.pydatapro.com",
+        "https://pydatapro.com",
+        "https://careergistpro.com",
+        "https://www.careergistpro.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
