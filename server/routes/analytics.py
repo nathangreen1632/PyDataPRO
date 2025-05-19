@@ -85,7 +85,7 @@ class SearchLog(BaseModel):
     query: str
 
 
-@router.post("/analytics/search-history", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/search-history", status_code=status.HTTP_204_NO_CONTENT)
 def log_search_term(
     payload: SearchLog,
     db: Session = Depends(get_db),
