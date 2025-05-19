@@ -30,7 +30,7 @@ class AnalyticsResponse(BaseModel):
     common_titles: Dict[str, int]
 
 
-@router.post("/analytics/salary-summary", response_model=AnalyticsResponse)
+@router.post("/salary-summary", response_model=AnalyticsResponse)
 def salary_summary(payload: JobPayload):
     jobs = payload.jobs
 
