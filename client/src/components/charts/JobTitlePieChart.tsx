@@ -49,7 +49,7 @@ const JobTitlePieChart = ({ jobs, titles }: Props) => {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1F2937',
+              backgroundColor: '#ffffff',
               borderColor: '#374151',
               color: '#E5E7EB',
               borderRadius: '0.5rem',
