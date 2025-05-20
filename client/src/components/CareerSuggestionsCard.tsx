@@ -8,8 +8,8 @@ interface CareerSuggestionsCardProps {
 }
 
 interface Suggestion {
-  roleTitle: string;
-  matchStrength: number;
+  role: string;
+  explanation: string;
 }
 
 interface CareerSuggestionsResponse {
@@ -61,12 +61,12 @@ export const CareerSuggestionsCard = ({
     return <p className="text-sm text-gray-400 italic">Loading suggestions...</p>;
   }
 
-  if (!data) {
+  if (!data || !data.suggestedRoles?.length) {
     return <p className="text-sm text-gray-400 italic">No suggestions available.</p>;
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4">
+    <div className="bg-gray-800 rounded-lg p-4 shadow">
       <h2 className="text-xl font-semibold mb-2">🧭 Career Suggestions</h2>
 
       <button
@@ -80,10 +80,11 @@ export const CareerSuggestionsCard = ({
         <div className="mt-4 space-y-4">
           <div>
             <h3 className="text-sm font-semibold text-gray-300 mb-1">Top Roles:</h3>
-            <ul className="list-disc list-inside text-sm">
-              {data.suggestedRoles.map((r) => (
-                <li key={r.roleTitle}>
-                  {r.roleTitle} — Match Strength: {r.matchStrength}
+            <ul className="space-y-2">
+              {data.suggestedRoles.slice(0, 3).map((r, i) => (
+                <li key={i} className="bg-gray-700 p-3 rounded">
+                  <p className="font-bold text-lg">{r.role}</p>
+                  <p className="text-sm text-gray-300">{r.explanation}</p>
                 </li>
               ))}
             </ul>
