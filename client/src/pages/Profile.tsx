@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_BASE } from "../utils/api";
-import {CareerSuggestionsCard} from "../components/CareerSuggestionsCard.tsx";
+import { CareerSuggestionsCard } from "../components/CareerSuggestionsCard.tsx";
 
 interface Resume {
   id: number;
@@ -25,45 +25,69 @@ interface DashboardData {
 
 export const Profile = () => {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("");
+  const [selectedResumeContent, setSelectedResumeContent] = useState<string>("");
+  const [loadingWidget, setLoadingWidget] = useState<boolean>(false);
 
   useEffect(() => {
-  const fetchDashboard = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/dashboard`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    const fetchDashboard = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
-      if (!res.ok) {
-        console.warn(`⚠️ Dashboard fetch failed: ${res.status}`);
+        if (!res.ok) {
+          console.warn(`⚠️ Dashboard fetch failed: ${res.status}`);
+          setData({
+            userName: "Unauthorized",
+            resumes: [],
+            favorites: [],
+            keywords: [],
+            searchTerms: [],
+          });
+          return;
+        }
+
+        const json = await res.json();
+        setData(json);
+
+        const mostRecent = json.resumes?.[0];
+        if (mostRecent) {
+          setSelectedResumeId(String(mostRecent.id));
+          setSelectedResumeContent(mostRecent.content);
+        }
+      } catch (err) {
+        console.error("🚨 Dashboard error:", err);
         setData({
-          userName: "Unauthorized",
+          userName: "Error",
           resumes: [],
           favorites: [],
           keywords: [],
           searchTerms: [],
         });
-        return;
       }
+    };
 
-      const json = await res.json();
-      setData(json);
-    } catch (err) {
-      console.error("🚨 Dashboard error:", err);
-      setData({
-        userName: "Error",
-        resumes: [],
-        favorites: [],
-        keywords: [],
-        searchTerms: [],
-      });
+    void fetchDashboard();
+  }, []);
+
+  const handleResumeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const chosenId = e.target.value;
+    const selected = data?.resumes.find((r) => String(r.id) === chosenId);
+
+    if (selected) {
+      setSelectedResumeId(chosenId);
+      setLoadingWidget(true);
+      setSelectedResumeContent("");
+
+      setTimeout(() => {
+        setSelectedResumeContent(selected.content);
+        setLoadingWidget(false);
+      }, 50);
     }
   };
-
-  void fetchDashboard();
-}, []);
-
 
   if (!data) return <p className="text-white p-4">Loading dashboard...</p>;
 
@@ -74,80 +98,81 @@ export const Profile = () => {
       <section>
         <h2 className="text-xl font-semibold mb-2">📄 Your Resumes</h2>
         <ul className="space-y-1">
-          {Array.isArray(data?.resumes) ? (
-            data.resumes.map((r) => (
-              <li key={r.id} className="bg-gray-800 p-3 rounded">
-                {r.title} — {new Date(r.created_at).toLocaleDateString()}
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400 italic">No resumes found.</p>
-          )}
+          {data.resumes.map((r) => (
+            <li key={r.id} className="bg-gray-800 p-3 rounded">
+              {r.title} — {new Date(r.created_at).toLocaleDateString()}
+            </li>
+          ))}
         </ul>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-2">⭐ Favorite Jobs</h2>
         <ul className="space-y-1">
-          {Array.isArray(data?.favorites) ? (
-            data.favorites.map((f) => (
-              <li key={f.id} className="bg-gray-800 p-3 rounded">
-                {f.title} at {f.company}
-              </li>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400 italic">No favorite jobs found.</p>
-          )}
+          {data.favorites.map((f) => (
+            <li key={f.id} className="bg-gray-800 p-3 rounded">
+              {f.title} at {f.company}
+            </li>
+          ))}
         </ul>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-2">🔑 Common Keywords</h2>
         <div className="flex flex-wrap gap-2">
-          {Array.isArray(data?.keywords) ? (
-            data.keywords.map((k) => (
-              <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm">
-                {k}
-              </span>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400 italic">No keywords detected.</p>
-          )}
+          {data.keywords.map((k) => (
+            <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm">
+              {k}
+            </span>
+          ))}
         </div>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-2">🔎 Recent Searches</h2>
         <div className="flex flex-wrap gap-2">
-          {Array.isArray(data?.searchTerms) && data.searchTerms.length > 0 ? (
-            data.searchTerms.map((term, l) => (
-              <span
-                key={l}
-                className="bg-purple-700 text-white px-3 py-1 rounded-full text-sm"
-              >
-                {term}
-              </span>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400 italic">No recent searches found.</p>
-          )}
+          {data.searchTerms.map((term, l) => (
+            <span key={l} className="bg-purple-700 text-white px-3 py-1 rounded-full text-sm">
+              {term}
+            </span>
+          ))}
         </div>
       </section>
 
       {/* 🧭 Career Suggestions Widget Section */}
-
-      {(() => {
-        console.log("📄 Resume content:", data?.resumes?.[0]?.content);
-        console.log("🆔 userId:", localStorage.getItem("userId"));
-        return null;
-      })()}
-
-      {data?.resumes?.[0]?.content && localStorage.getItem("userId") && (
+      {data.resumes.length > 0 && localStorage.getItem("userId") && (
         <section>
-          <CareerSuggestionsCard
-            resume={data.resumes[0].content}
-            userId={localStorage.getItem("userId")!}
-          />
+          {data.resumes.length > 1 && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Choose Resume to Analyze:
+              </label>
+              <select
+                value={selectedResumeId}
+                onChange={handleResumeChange}
+                className="bg-gray-700 text-white p-2 rounded w-full"
+              >
+                {data.resumes.map((r) => (
+                  <option key={r.id} value={String(r.id)}>
+                    {r.title} — {new Date(r.created_at).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {loadingWidget && (
+            <div className="bg-gray-800 p-4 rounded text-sm text-gray-300 animate-pulse">
+              🧠 Generating personalized suggestions...
+            </div>
+          )}
+
+          {!loadingWidget && selectedResumeContent && (
+            <CareerSuggestionsCard
+              resume={selectedResumeContent}
+              userId={localStorage.getItem("userId")!}
+            />
+          )}
         </section>
       )}
     </div>
