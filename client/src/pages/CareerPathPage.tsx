@@ -11,12 +11,41 @@ interface CareerData {
   suggestedRoles: CareerSuggestion[];
 }
 
+interface Resume {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+}
+
 const CareerPathPage = () => {
+  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("");
   const [data, setData] = useState<CareerData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchSuggestions = async (resume: string, userId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/career-suggestions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resume, userId }),
+      });
+
+      if (!res.ok) {
+        console.error("Suggestion fetch failed:", res.status);
+        return null;
+      }
+
+      return await res.json();
+    } catch (err) {
+      console.error("Error generating suggestions:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
@@ -28,48 +57,51 @@ const CareerPathPage = () => {
         }
 
         const dashboardRes = await fetch(`${API_BASE}/api/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const dashboardData = await dashboardRes.json();
-        const resumeContent = dashboardData?.resumes?.[0]?.content;
+        const fetchedResumes = dashboardData?.resumes ?? [];
 
-        if (!resumeContent) {
-          console.warn("No resume content found.");
+        if (!fetchedResumes.length) {
+          console.warn("No resumes found.");
           setLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_BASE}/api/career-suggestions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ resume: resumeContent, userId }),
-        });
-
-        if (!res.ok) {
-          console.error("Suggestion fetch failed:", res.status);
-          setLoading(false);
-          return;
-        }
-
-        const json = await res.json();
-        setData(json);
+        setResumes(fetchedResumes);
+        setSelectedResumeId(String(fetchedResumes[0].id)); // ✅ Set as string
       } catch (err) {
-        console.error("Error loading career path:", err);
-      } finally {
+        console.error("Error loading resumes:", err);
+      }
+    };
+
+    void fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    const fetchCareerData = async () => {
+      const userId = localStorage.getItem("userId");
+      const selectedResume = resumes.find((r) => String(r.id) === selectedResumeId);
+
+      if (userId && selectedResume) {
+        setLoading(true);
+        const suggestions = await fetchSuggestions(selectedResume.content, userId);
+        setData(suggestions);
         setLoading(false);
       }
     };
 
-    void fetchData();
-  }, []);
+    if (selectedResumeId) {
+      void fetchCareerData();
+    }
+  }, [selectedResumeId, resumes]);
+
+  const handleResumeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedResumeId(e.target.value); // ✅ No parseInt needed
+  };
 
   if (loading) return <p className="text-white p-6">Loading career suggestions...</p>;
-
   if (!data || !Array.isArray(data.skillsExtracted) || !Array.isArray(data.suggestedRoles)) {
     return <p className="text-white p-6">No data available or invalid format.</p>;
   }
@@ -77,6 +109,25 @@ const CareerPathPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8 space-y-6">
       <h1 className="text-3xl font-bold">🧠 Career Path Insights</h1>
+
+      {resumes.length > 1 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Choose Resume to Analyze:
+          </label>
+          <select
+            value={selectedResumeId}
+            onChange={handleResumeChange}
+            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
+          >
+            {resumes.map((r) => (
+              <option key={r.id} value={String(r.id)}>
+                {r.title} — {new Date(r.created_at).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
