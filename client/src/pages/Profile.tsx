@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API_BASE } from "../utils/api";
 import { CareerSuggestionsCard } from "../components/CareerSuggestionsCard.tsx";
 
@@ -32,7 +32,7 @@ export const Profile = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/dashboard`, {
+        const res = await fetch(`${API_BASE}/dashboard`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
