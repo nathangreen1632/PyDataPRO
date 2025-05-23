@@ -29,7 +29,7 @@ export const CareerSuggestionsCard = ({
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/career-suggestions`, {
+        const res = await fetch(`${API_BASE}/career-suggestions`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
