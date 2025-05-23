@@ -38,8 +38,8 @@ def root():
     return JSONResponse(content={"message": "PyDataPRO API is running!"})
 
 app.include_router(suggestionsRouter, prefix="/api", tags=["Career Suggestions"])
-app.include_router(interview.router)
-app.include_router(analytics.router, prefix="/analytics")
-app.include_router(jobs.router)
-app.include_router(dashboard.router, prefix="/api")
+app.include_router(interview.router, prefix="/api", tags=["Interview"])
+app.include_router(analytics.router, prefix="/api/analytics")
+app.include_router(jobs.router, prefix="/api", tags=["Jobs"])
+app.include_router(dashboard.router, prefix="/api", tags=["Dashboard"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
