@@ -26,7 +26,7 @@ const CareerPathPage = () => {
 
   const fetchSuggestions = async (resume: string, userId: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/career-suggestions`, {
+      const res = await fetch(`${API_BASE}/career-suggestions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resume, userId }),
@@ -56,7 +56,7 @@ const CareerPathPage = () => {
           return;
         }
 
-        const dashboardRes = await fetch(`${API_BASE}/api/dashboard`, {
+        const dashboardRes = await fetch(`${API_BASE}/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -70,7 +70,7 @@ const CareerPathPage = () => {
         }
 
         setResumes(fetchedResumes);
-        setSelectedResumeId(String(fetchedResumes[0].id)); // ✅ Set as string
+        setSelectedResumeId(String(fetchedResumes[0].id));
       } catch (err) {
         console.error("Error loading resumes:", err);
       }
@@ -98,7 +98,7 @@ const CareerPathPage = () => {
   }, [selectedResumeId, resumes]);
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedResumeId(e.target.value); // ✅ No parseInt needed
+    setSelectedResumeId(e.target.value);
   };
 
   if (loading) return <p className="text-white p-6">Loading career suggestions...</p>;
