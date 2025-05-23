@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActivityDetector } from './useActivityDetector';
 import { useAuth } from './useAuth';
+import {API_BASE} from "../utils/api.ts";
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
 const COUNTDOWN_LIMIT = 2 * 60 * 1000;
@@ -13,7 +14,7 @@ export const useSessionManager = () => {
 
   const refreshToken = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/refresh-token', {
+      const res = await fetch(`${API_BASE}'/auth/refresh-token'`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
