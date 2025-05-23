@@ -14,7 +14,7 @@ export const useSessionManager = () => {
 
   const refreshToken = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}'/auth/refresh-token'`, {
+      const res = await fetch(`${API_BASE}/auth/refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
