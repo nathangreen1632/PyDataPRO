@@ -108,3 +108,21 @@ def log_search_term(
     )
 
     db.commit()
+
+@router.delete("/search-history/{query}", status_code=204)
+def delete_search_term(
+    query: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    db.execute(
+        text("""
+            DELETE FROM "SearchTerms"
+            WHERE "userId" = :userId AND "query" = :query
+        """),
+        {
+            "userId": str(current_user.id),
+            "query": query,
+        }
+    )
+    db.commit()

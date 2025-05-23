@@ -23,6 +23,7 @@ app.add_middleware(
     allow_origins=[
         "https://pydatapro-fe.onrender.com",
         "http://localhost:5173",
+        "http://localhost:5174",
         "https://www.pydatapro.com",
         "https://pydatapro.com",
         "https://careergistpro.com",
