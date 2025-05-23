@@ -1,7 +1,8 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import Navbar from '../components/Navbar'; // adjust path if needed
+import Navbar from '../components/Navbar';
+import {Toaster} from "react-hot-toast";
 
 const Layout: React.FC = () => {
   const { token, logout } = useAuth();
@@ -25,6 +26,7 @@ const Layout: React.FC = () => {
           © {new Date().getFullYear()} PyDataPRO — All rights reserved.
         </div>
       </footer>
+      <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 };
