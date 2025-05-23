@@ -13,7 +13,6 @@ export const useSessionManager = () => {
   const logoutRef = useRef(false);
 
   const refreshToken = useCallback(async () => {
-    console.log("🧪 API_BASE in prod is:", API_BASE);
     try {
       const res = await fetch(`${API_BASE}/auth/refresh-token`, {
         method: 'POST',
