@@ -64,14 +64,17 @@ export const ProfileAnalyticsPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white px-4 py-8">
       <div className="max-w-6xl mx-auto bg-gray-800 border border-gray-700 rounded-2xl shadow-xl p-8">
-        <h2 className="text-4xl font-bold mb-10 text-center">Analytics Overview</h2>
+        <h1 className="text-4xl font-bold mb-10 text-center">Analytics Overview</h1>
 
         {summary ? (
           <>
             <div className="grid md:grid-cols-2 gap-8 mb-10">
               <TopLocationsBarChart locations={summary.top_locations} />
-              <AverageSalaryCard value={summary.average_salary} />
+              <div className="flex items-center justify-center">
+                <AverageSalaryCard value={summary.average_salary} />
+              </div>
             </div>
+
 
             <div className="mt-10">
               <JobTitlePieChart titles={summary.common_titles} jobs={jobs} />

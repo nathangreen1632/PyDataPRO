@@ -33,6 +33,7 @@ const InterviewGenerator = () => {
  return (
     <div className="flex flex-col items-center px-2">
       {/* Sticky Search Bar */}
+      <h1 className="text-2xl font-bold text-white mb-4">Interview Question Generator</h1>
       <form
         onSubmit={handleSubmit}
         className="sticky top-6 z-10 bg-gray-900 p-4 rounded-xl shadow-lg w-full max-w-2xl mb-6"
@@ -47,7 +48,7 @@ const InterviewGenerator = () => {
 
         <button
           type="submit"
-          className="block w-72 mx-auto mt-4 bg-emerald-500 text-black font-medium py-3 px-4 rounded-lg hover:bg-emerald-700 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="block w-72 mx-auto mt-4 bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg hover:bg-emerald-900 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
         >
           {loading ? 'Generating...' : 'Generate Questions'}
         </button>

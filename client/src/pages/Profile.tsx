@@ -94,7 +94,8 @@ export const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto mt-8 text-white space-y-8">
-      <h1 className="text-3xl font-bold">Welcome, {data.userName}</h1>
+      <h1 className="text-3xl font-bold"><span className="text-sky-400">Welcome,</span>
+        <span className="text-emerald-300"> {data.userName}!</span></h1>
 
       {/* Resumes Section */}
       <section>
@@ -125,7 +126,7 @@ export const Profile = () => {
         <h2 className="text-xl font-semibold mb-2">🔑 Common Keywords</h2>
         <div className="flex flex-wrap gap-2">
           {data.keywords.map((k) => (
-            <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm">
+            <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
               {k}
             </span>
           ))}
@@ -139,7 +140,7 @@ export const Profile = () => {
           {data.searchTerms.map((term, l) => (
             <span
               key={l}
-              className="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm flex items-center space-x-2"
+              className="bg-cyan-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-2"
             >
               <span>{term}</span>
               <button
@@ -190,7 +191,7 @@ export const Profile = () => {
             <div className="mb-4">
               <label
                 htmlFor="resume-selector"
-                className="block text-sm font-medium text-gray-300 mb-1"
+                className="block text-lg font-bold text-white mb-1"
               >
                 Choose Resume to Analyze:
               </label>
@@ -198,7 +199,7 @@ export const Profile = () => {
                 id="resume-selector"
                 value={selectedResumeId}
                 onChange={handleResumeChange}
-                className="bg-gray-700 text-white p-2 rounded w-full"
+                className="bg-gray-800 text-gray-300 p-2 rounded w-full"
               >
                 {data.resumes.map((r) => (
                   <option key={r.id} value={String(r.id)}>

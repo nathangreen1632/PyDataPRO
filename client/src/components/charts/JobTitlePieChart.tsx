@@ -29,9 +29,12 @@ const JobTitlePieChart = ({ jobs, titles }: Props) => {
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-      <h3 className="text-xl font-semibold text-white mb-4 text-center">
+      <h2
+        className="text-xl font-semibold text-white mb-4 text-center"
+        aria-label="Job Title Distribution"
+      >
         Job Title Distribution
-      </h3>
+      </h2>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie

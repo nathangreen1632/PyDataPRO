@@ -20,9 +20,12 @@ const TopLocationsBarChart = ({ locations }: Props) => {
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-      <h3 className="text-xl font-semibold text-white mb-4 text-center">
+      <h2
+        className="text-xl font-semibold text-white mb-4 text-center"
+        aria-label="Top Locations"
+      >
         Top Locations
-      </h3>
+      </h2>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
