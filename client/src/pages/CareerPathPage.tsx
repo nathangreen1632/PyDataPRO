@@ -111,23 +111,28 @@ const CareerPathPage = () => {
       <h1 className="text-3xl font-bold">🧠 Career Path Insights</h1>
 
       {resumes.length > 1 && (
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Choose Resume to Analyze:
-          </label>
-          <select
-            value={selectedResumeId}
-            onChange={handleResumeChange}
-            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
-          >
-            {resumes.map((r) => (
-              <option key={r.id} value={String(r.id)}>
-                {r.title} — {new Date(r.created_at).toLocaleDateString()}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+  <div>
+    <label
+      htmlFor="resume-select"
+      className="block text-xl font-medium text-white mb-1"
+    >
+      Choose Resume to Analyze:
+    </label>
+    <select
+      id="resume-select"
+      value={selectedResumeId}
+      onChange={handleResumeChange}
+      className="bg-gray-700 text-white p-2 rounded w-full mb-4"
+    >
+      {resumes.map((r) => (
+        <option key={r.id} value={String(r.id)}>
+          {r.title} — {new Date(r.created_at).toLocaleDateString()}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
@@ -135,7 +140,7 @@ const CareerPathPage = () => {
           {data.skillsExtracted.map((skill, i) => (
             <span
               key={i}
-              className="bg-blue-700 text-white px-3 py-1 rounded-full text-sm"
+              className="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm"
             >
               {skill}
             </span>
