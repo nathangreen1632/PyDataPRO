@@ -101,7 +101,7 @@ export const CareerSuggestionsCard = ({
 
           <div>
             <h3 className="text-sm font-semibold text-gray-300 mb-1">Extracted Skills:</h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 ml-6">
               {data.skillsExtracted.map((s) => (
                 <span
                   key={s}
