@@ -14,6 +14,7 @@ const Navbar = ({
     { name: "Profile", path: "/profile" },
     { name: "Interview Generator", path: "/interview" },
     { name: "Career Path", path: "/career-path" },
+    { name: "Learning Resources", path: "/learning-resources" },
     { name: "Analytics", path: "/analytics" },
   ];
 
