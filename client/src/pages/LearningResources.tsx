@@ -159,8 +159,8 @@ export const LearningResources = () => {
 
       {skills.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xl text-center font-semibold mb-2">Skills Extracted</h2>
-          <div className="flex flex-wrap gap-2 w-1/2 mx-auto justify-center">
+          <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
+          <div className="flex flex-wrap gap-2 ml-6">
             {skills.map((skill, i) => (
               <span
                 key={i}
