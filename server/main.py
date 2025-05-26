@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from server.routes import interview, analytics, jobs, auth, dashboard
 from server.routes.suggestions import router as suggestionsRouter
+from server.routes import learning_resources
 
 load_dotenv()
 
@@ -44,3 +45,4 @@ app.include_router(analytics.router, prefix="/api/analytics")
 app.include_router(jobs.router, prefix="/api", tags=["Jobs"])
 app.include_router(dashboard.router, prefix="/api", tags=["Dashboard"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(learning_resources.router, prefix="/api", tags=["Learning Resources"])
