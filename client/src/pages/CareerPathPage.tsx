@@ -101,7 +101,15 @@ const CareerPathPage = () => {
     setSelectedResumeId(e.target.value);
   };
 
-  if (loading) return <p className="text-white p-6">Loading career suggestions...</p>;
+  if (loading) {
+  return (
+    <div className="flex justify-center items-center py-10">
+      <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <span className="ml-3 text-gray-300">Loading career suggestions...</span>
+    </div>
+  );
+}
+
   if (!data || !Array.isArray(data.skillsExtracted) || !Array.isArray(data.suggestedRoles)) {
     return <p className="text-white p-6">No data available or invalid format.</p>;
   }
