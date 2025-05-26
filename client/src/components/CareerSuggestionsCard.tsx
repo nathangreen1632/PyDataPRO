@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../utils/api";
 
@@ -25,8 +25,13 @@ export const CareerSuggestionsCard = ({
   const [data, setData] = useState<CareerSuggestionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (!resume || hasFetched.current) return;
+
+    hasFetched.current = true;
+
     const fetchSuggestions = async () => {
       try {
         const res = await fetch(`${API_BASE}/career-suggestions`, {
@@ -40,7 +45,6 @@ export const CareerSuggestionsCard = ({
         if (!res.ok) {
           console.warn(`⚠️ Suggestion fetch failed: ${res.status}`);
           setData(null);
-          setLoading(false);
           return;
         }
 
@@ -61,7 +65,7 @@ export const CareerSuggestionsCard = ({
     return <p className="text-sm text-gray-400 italic">Loading suggestions...</p>;
   }
 
-  if (!data || !data.suggestedRoles?.length) {
+  if (!data?.suggestedRoles?.length) {
     return <p className="text-sm text-gray-400 italic">No suggestions available.</p>;
   }
 
