@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API_BASE } from "../utils/api";
 
 interface CareerSuggestion {
@@ -111,27 +111,27 @@ const CareerPathPage = () => {
       <h1 className="text-3xl font-bold">🧠 Career Path Insights</h1>
 
       {resumes.length > 1 && (
-  <div>
-    <label
-      htmlFor="resume-select"
-      className="block text-xl font-medium text-white mb-1"
-    >
-      Choose Resume to Analyze:
-    </label>
-    <select
-      id="resume-select"
-      value={selectedResumeId}
-      onChange={handleResumeChange}
-      className="bg-gray-700 text-white p-2 rounded w-full mb-4"
-    >
-      {resumes.map((r) => (
-        <option key={r.id} value={String(r.id)}>
-          {r.title} — {new Date(r.created_at).toLocaleDateString()}
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+        <div>
+          <label
+            htmlFor="resume-select"
+            className="block text-xl font-medium text-white mb-1"
+          >
+            Choose Resume to Analyze:
+          </label>
+          <select
+            id="resume-select"
+            value={selectedResumeId}
+            onChange={handleResumeChange}
+            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
+          >
+            {resumes.map((r) => (
+              <option key={r.id} value={String(r.id)}>
+                {r.title} — {new Date(r.created_at).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
 
       <section>
