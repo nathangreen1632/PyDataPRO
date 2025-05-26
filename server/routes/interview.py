@@ -11,7 +11,12 @@ load_dotenv()
 
 router = APIRouter()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+api_key_4o = os.getenv("OPENAI_API_KEY_4O")
+if not api_key_4o:
+    raise RuntimeError("Missing required environment variable: OPENAI_API_KEY_4O")
+
+client = OpenAI(api_key=api_key_4o)
+
 
 
 class JobRequest(BaseModel):
@@ -23,7 +28,7 @@ async def generate_questions(req: JobRequest):
     try:
         prompt = (
             "Return a JSON array of exactly 10 interview questions for a "
-            f"{req.title} role. Each question should be a single string. "
+            f"{req.title.strip()} role. Each question should be a single string. "
             "The list must contain exactly 10 questions—no more, no less. "
             "Include a mix of behavioral, technical, and situational types. "
             "Make the questions clear, concise, and relevant to the job title. "
@@ -36,7 +41,7 @@ async def generate_questions(req: JobRequest):
             model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=800
+            max_tokens=200,
         )
 
         raw_output = response.choices[0].message.content.strip()
