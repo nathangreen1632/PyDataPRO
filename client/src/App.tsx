@@ -8,7 +8,8 @@ import { Profile } from './pages/Profile.tsx';
 import Home from './pages/Home.tsx';
 import CareerPathPage from './pages/CareerPathPage.tsx';
 import SessionModalWrapper from './components/SessionModalWrapper.tsx';
-import { SessionProvider } from './context/SessionContext';
+import { SessionProvider } from './context/SessionContext.tsx';
+import { LearningResources } from "./pages/LearningResources.tsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/interview" element={<div className="max-w-4xl mx-auto"><InterviewGenerator /></div>} />
             <Route path="/career-path" element={<div className="max-w-4xl mx-auto"><CareerPathPage /></div>} />
             <Route path="/analytics" element={<div className="max-w-4xl mx-auto"><ProfileAnalyticsPage /></div>} />
+            <Route path="/learning-resources" element={<div className="max-w-6xl mx-auto"><LearningResources /></div>} />
             <Route path="/login" element={<div className="max-w-4xl mx-auto"><Login /></div>} />
             <Route path="/register" element={<div className="max-w-4xl mx-auto"><Register /></div>} />
           </Route>
