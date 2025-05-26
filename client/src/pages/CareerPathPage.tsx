@@ -144,7 +144,7 @@ const CareerPathPage = () => {
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 ml-6">
           {data.skillsExtracted.map((skill, i) => (
             <span
               key={i}
