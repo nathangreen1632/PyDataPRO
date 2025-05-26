@@ -93,8 +93,6 @@ export const useActivityDetector = ({
 
       const target = event.target as HTMLElement;
 
-      console.log(`📣 Activity detected: ${event.type} at ${new Date().toLocaleTimeString()}`);
-
       if (countdownVisible) {
         if (
           target.tagName === 'BUTTON' &&
