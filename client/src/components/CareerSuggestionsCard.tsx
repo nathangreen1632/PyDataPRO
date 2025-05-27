@@ -80,7 +80,7 @@ export const CareerSuggestionsCard = ({
 
       <button
         onClick={() => setExpanded(!expanded)}
-        className="bg-emerald-700 px-4 py-2 rounded text-md font-semibold hover:bg-emerald-900 transition"
+        className="bg-emerald-700 px-4 py-2 rounded-full text-md font-semibold hover:bg-emerald-900 transition"
       >
         {expanded ? "Hide Suggestions" : "Show Suggestions"}
       </button>
