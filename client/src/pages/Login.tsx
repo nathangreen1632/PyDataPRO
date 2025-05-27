@@ -66,7 +66,7 @@ const Login: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition"
+          className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold transition"
         >
           Login
         </button>
