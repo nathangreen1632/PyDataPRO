@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 import pandas as pd
 from datetime import datetime, timezone
+import math
 
 from server.database import get_db
 from server.utils.auth import get_current_user
@@ -30,60 +31,77 @@ class AnalyticsResponse(BaseModel):
     common_titles: Dict[str, int]
 
 
-@router.post("/salary-summary", response_model=AnalyticsResponse)
-def salary_summary(payload: JobPayload):
-    jobs = payload.jobs
+@router.get("/salary-summary", response_model=AnalyticsResponse)
+def salary_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = db.execute(
+        text("""
+            SELECT "title", "location", "salaryMin", "salaryMax"
+            FROM "user_analytics"
+            WHERE "userId" = :userId AND "action" = 'favorite'
+        """),
+        {"userId": str(current_user.id)}
+    )
 
-    if not jobs:
-        raise HTTPException(status_code=400, detail="No job data provided.")
+    rows = result.fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="No jobs found for user.")
 
-    try:
-        df = pd.DataFrame([job.dict() for job in jobs])
+    df = pd.DataFrame(rows, columns=["title", "location", "salaryMin", "salaryMax"])
 
-        df["salary_mid"] = df[["salaryMin", "salaryMax"]].mean(axis=1)
-        df["location"] = df["location"].str.strip().str.title()
-        df["title"] = df["title"].str.strip().str.title()
-        average_salary = round(df["salary_mid"].dropna().mean(), 2)
+    print("\n=== Fetched Jobs for Analytics ===")
+    print(df.to_string(index=False))
+    print("==================================\n")
 
-        def extract_general_location(loc: str) -> str:
-            parts = [p.strip() for p in loc.split(",")]
-            if len(parts) >= 2:
-                return f"{parts[-2]}, {parts[-1]}"
-            return loc
+    # Drop rows where either salaryMin or salaryMax is missing
+    df = df.dropna(subset=["salaryMin", "salaryMax"])
 
-        df["normalized_location"] = df["location"].dropna().apply(extract_general_location)
+    # Clean any potentially unsafe float values (like inf or nan)
+    df["salaryMin"] = df["salaryMin"].apply(lambda x: x if math.isfinite(x) else None)
+    df["salaryMax"] = df["salaryMax"].apply(lambda x: x if math.isfinite(x) else None)
 
-        top_locations = (
-            df["location"]
-            .dropna()
-            .str.strip()
-            .str.title()
-            .value_counts()
-            .head(5)
-            .to_dict()
-        )
+    df["salary_mid"] = df[["salaryMin", "salaryMax"]].mean(axis=1)
+    df["location"] = df["location"].str.strip().str.title()
+    df["title"] = df["title"].str.strip().str.title()
+    average_salary = round(df["salary_mid"].dropna().mean(), 2)
 
-        common_titles = (
-            df["title"]
-            .dropna()
-            .value_counts()
-            .head(7)
-            .to_dict()
-        )
+    if not math.isfinite(average_salary):
+        average_salary = 0.0
 
-        return {
-            "average_salary": average_salary,
-            "top_locations": top_locations,
-            "common_titles": common_titles,
-        }
+    def extract_general_location(loc: str) -> str:
+        parts = [p.strip() for p in loc.split(",")]
+        return f"{parts[-2]}, {parts[-1]}" if len(parts) >= 2 else loc
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    df["normalized_location"] = df["location"].dropna().apply(extract_general_location)
 
+    top_locations = (
+        df["location"]
+        .dropna()
+        .str.strip()
+        .str.title()
+        .value_counts()
+        .head(5)
+        .to_dict()
+    )
+
+    common_titles = (
+        df["title"]
+        .dropna()
+        .value_counts()
+        .head(7)
+        .to_dict()
+    )
+
+    return {
+        "average_salary": average_salary,
+        "top_locations": top_locations,
+        "common_titles": common_titles,
+    }
 
 class SearchLog(BaseModel):
     query: str
-
 
 @router.post("/search-history", status_code=status.HTTP_204_NO_CONTENT)
 def log_search_term(
