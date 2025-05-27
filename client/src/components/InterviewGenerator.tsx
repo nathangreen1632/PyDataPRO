@@ -48,7 +48,7 @@ const InterviewGenerator = () => {
 
         <button
           type="submit"
-          className="block w-72 mx-auto mt-4 bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg hover:bg-emerald-900 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="block w-72 mx-auto mt-4 bg-emerald-700 text-white font-medium py-3 px-4 rounded-full hover:bg-emerald-900 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
         >
           {loading ? 'Generating...' : 'Generate Questions'}
         </button>
