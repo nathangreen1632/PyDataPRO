@@ -188,7 +188,7 @@ export const LearningResources = () => {
           <div className="flex justify-start mb-4">
             <button
               onClick={handleRefresh}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-semibold transition"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-semibold transition"
             >
               Refresh
             </button>
