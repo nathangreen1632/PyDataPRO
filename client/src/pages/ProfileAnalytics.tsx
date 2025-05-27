@@ -17,7 +17,7 @@ interface SummaryData {
   common_titles: Record<string, number>;
 }
 
-export const ProfileAnalyticsPage = () => {
+export const ProfileAnalytics = () => {
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
 
