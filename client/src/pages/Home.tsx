@@ -26,13 +26,13 @@ const Home: React.FC = () => {
       <div className="flex space-x-6">
         <Link
           to="/register"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition"
         >
           Register
         </Link>
         <Link
           to="/login"
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-full transition"
         >
           Login
         </Link>
