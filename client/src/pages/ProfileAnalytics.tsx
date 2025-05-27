@@ -17,6 +17,7 @@ export const ProfileAnalytics = () => {
     const fetchAnalytics = async () => {
       try {
         const res = await fetch(`${API_BASE}/analytics/salary-summary`, {
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
