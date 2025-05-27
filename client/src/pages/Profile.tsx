@@ -99,34 +99,52 @@ export const Profile = () => {
 
       {/* Resumes Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-2">📄 Your Resumes</h2>
-        <ul className="space-y-1">
+        <h2 className="text-xl font-semibold mb-2">Your Resumes</h2>
+        <div className="flex flex-wrap gap-2 ml-6">
           {data.resumes.map((r) => (
-            <li key={r.id} className="bg-gray-800 p-3 rounded">
+            <span
+              key={r.id}
+              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
+            >
               {r.title} — {new Date(r.created_at).toLocaleDateString()}
-            </li>
+            </span>
           ))}
-        </ul>
+        </div>
       </section>
 
       {/* Favorites Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-2">⭐ Favorite Jobs</h2>
-        <ul className="space-y-1">
-          {data.favorites.map((f) => (
-            <li key={f.id} className="bg-gray-800 p-3 rounded">
-              {f.title} at {f.company}
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-xl font-semibold mb-2">Favorited Jobs</h2>
+        <div className="grid grid-cols-2 gap-x-4 ml-6">
+          <div className="space-y-2">
+            {data.favorites.slice(0, 5).map((f) => (
+              <span
+                key={`col1-${f.id}`}
+                className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
+              >
+                {f.title} at {f.company}
+              </span>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {data.favorites.slice(5, 10).map((f) => (
+              <span
+                key={`col2-${f.id}`}
+                className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
+              >
+                {f.title} at {f.company}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Keywords Section */}
+
       <section>
-        <h2 className="text-xl font-semibold mb-2">🔑 Common Keywords</h2>
-        <div className="flex flex-wrap gap-2">
+        <h2 className="text-xl font-semibold mb-2">Common Resume Keywords</h2>
+        <div className="flex flex-wrap gap-2 ml-6">
           {data.keywords.map((k) => (
-            <span key={k} className="bg-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
+            <span key={k} className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold capitalize">
               {k}
             </span>
           ))}
@@ -135,12 +153,24 @@ export const Profile = () => {
 
       {/* Search Terms Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-2">🔎 Recent Searches</h2>
-        <div className="flex flex-wrap gap-2">
+        <a
+          href="https://www.careergistpro.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-fit hover:underline decoration-red-500 focus:outline-none"
+          aria-label="Visit CareerGistPRO"
+        >
+          <h2 className="text-xl font-semibold mb-2">
+            <span className="text-white">Recent CareerGist</span>
+            <span className="text-red-500">PRO</span>
+            <span className="text-white"> Searches</span>
+          </h2>
+        </a>
+        <div className="flex flex-wrap gap-2 ml-6">
           {data.searchTerms.map((term, l) => (
             <span
               key={l}
-              className="bg-cyan-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-2"
+              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-2"
             >
               <span>{term}</span>
               <button
