@@ -12,11 +12,11 @@ interface UseActivityDetectorOptions {
 }
 
 const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = [
-  'keydown',
-  'mousedown',
-  'scroll',
-  'click',
-  'touchstart',
+  'keydown',      // User typed something
+  'mousedown',    // Mouse clicked
+  'touchstart',   // Finger touched screen (intentional)
+  'scroll',       // User is actively scrolling
+  'wheel',        // Mouse wheel used (usually intentional)
 ];
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;
@@ -31,21 +31,20 @@ export const useActivityDetector = ({
   countdownLimit = COUNTDOWN_LIMIT,
   onCountdownStart,
 }: UseActivityDetectorOptions) => {
-  const { token } = useAuth();
+  const {token} = useAuth();
   const [countdownVisible, setCountdownVisible] = useState(false);
 
   const inactivityTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-const countdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-const refreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousTokenRef = useRef<string | null>(null);
   const logoutRef = useRef(false);
+  const activityThrottleRef = useRef(false);
 
   const resetTimers = useCallback(() => {
     if (!token) return;
 
     logoutRef.current = false;
-
-    if (token === previousTokenRef.current) return;
     previousTokenRef.current = token;
 
     clearTimeout(inactivityTimeout.current!);
@@ -83,12 +82,14 @@ const refreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   }, [token, onExtendSession, onLogout, showModal, countdownLimit, inactiveLimit, onCountdownStart]);
 
   useEffect(() => {
-    if (!token) return;
-
-    resetTimers();
-
     const handleActivity = (event: Event) => {
       if (logoutRef.current) return;
+
+      if (activityThrottleRef.current) return;
+      activityThrottleRef.current = true;
+      setTimeout(() => {
+        activityThrottleRef.current = false;
+      }, 4000);
 
       const target = event.target as HTMLElement;
 
@@ -109,7 +110,12 @@ const refreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
       resetTimers();
     };
 
+    if (!token) return;
+
+    resetTimers();
+
     ACTIVITY_EVENTS.forEach((event) => window.addEventListener(event, handleActivity));
+
     return () => {
       ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, handleActivity));
       clearTimeout(inactivityTimeout.current!);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { API_BASE } from "../utils/api";
 
 interface CareerSuggestion {
@@ -18,7 +18,7 @@ interface Resume {
   created_at: string;
 }
 
-const CareerPathPage = () => {
+const CareerPath = () => {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [selectedResumeId, setSelectedResumeId] = useState<string>("");
   const [data, setData] = useState<CareerData | null>(null);
@@ -101,7 +101,15 @@ const CareerPathPage = () => {
     setSelectedResumeId(e.target.value);
   };
 
-  if (loading) return <p className="text-white p-6">Loading career suggestions...</p>;
+  if (loading) {
+  return (
+    <div className="flex justify-center items-center py-10">
+      <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <span className="ml-3 text-gray-300">Loading career suggestions...</span>
+    </div>
+  );
+}
+
   if (!data || !Array.isArray(data.skillsExtracted) || !Array.isArray(data.suggestedRoles)) {
     return <p className="text-white p-6">No data available or invalid format.</p>;
   }
@@ -111,32 +119,32 @@ const CareerPathPage = () => {
       <h1 className="text-3xl font-bold">🧠 Career Path Insights</h1>
 
       {resumes.length > 1 && (
-  <div>
-    <label
-      htmlFor="resume-select"
-      className="block text-xl font-medium text-white mb-1"
-    >
-      Choose Resume to Analyze:
-    </label>
-    <select
-      id="resume-select"
-      value={selectedResumeId}
-      onChange={handleResumeChange}
-      className="bg-gray-700 text-white p-2 rounded w-full mb-4"
-    >
-      {resumes.map((r) => (
-        <option key={r.id} value={String(r.id)}>
-          {r.title} — {new Date(r.created_at).toLocaleDateString()}
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+        <div>
+          <label
+            htmlFor="resume-select"
+            className="block text-xl font-medium text-white mb-1"
+          >
+            Choose Resume to Analyze:
+          </label>
+          <select
+            id="resume-select"
+            value={selectedResumeId}
+            onChange={handleResumeChange}
+            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
+          >
+            {resumes.map((r) => (
+              <option key={r.id} value={String(r.id)}>
+                {r.title} — {new Date(r.created_at).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
 
       <section>
         <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 ml-6">
           {data.skillsExtracted.map((skill, i) => (
             <span
               key={i}
@@ -163,4 +171,4 @@ const CareerPathPage = () => {
   );
 };
 
-export default CareerPathPage;
+export default CareerPath;

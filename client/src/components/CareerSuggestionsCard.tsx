@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../utils/api";
 
@@ -25,8 +25,13 @@ export const CareerSuggestionsCard = ({
   const [data, setData] = useState<CareerSuggestionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (!resume || hasFetched.current) return;
+
+    hasFetched.current = true;
+
     const fetchSuggestions = async () => {
       try {
         const res = await fetch(`${API_BASE}/career-suggestions`, {
@@ -40,7 +45,6 @@ export const CareerSuggestionsCard = ({
         if (!res.ok) {
           console.warn(`⚠️ Suggestion fetch failed: ${res.status}`);
           setData(null);
-          setLoading(false);
           return;
         }
 
@@ -58,10 +62,15 @@ export const CareerSuggestionsCard = ({
   }, [resume, userId]);
 
   if (loading) {
-    return <p className="text-sm text-gray-400 italic">Loading suggestions...</p>;
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <span className="ml-3 text-gray-300">Loading career suggestions...</span>
+      </div>
+    );
   }
 
-  if (!data || !data.suggestedRoles?.length) {
+  if (!data?.suggestedRoles?.length) {
     return <p className="text-sm text-gray-400 italic">No suggestions available.</p>;
   }
 
@@ -71,7 +80,7 @@ export const CareerSuggestionsCard = ({
 
       <button
         onClick={() => setExpanded(!expanded)}
-        className="bg-emerald-700 px-4 py-2 rounded text-md font-semibold hover:bg-emerald-900 transition"
+        className="bg-emerald-700 px-4 py-2 rounded-full text-md font-semibold hover:bg-emerald-900 transition"
       >
         {expanded ? "Hide Suggestions" : "Show Suggestions"}
       </button>
@@ -92,7 +101,7 @@ export const CareerSuggestionsCard = ({
 
           <div>
             <h3 className="text-sm font-semibold text-gray-300 mb-1">Extracted Skills:</h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 ml-6">
               {data.skillsExtracted.map((s) => (
                 <span
                   key={s}
