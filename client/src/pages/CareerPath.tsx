@@ -18,7 +18,7 @@ interface Resume {
   created_at: string;
 }
 
-const CareerPathPage = () => {
+const CareerPath = () => {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [selectedResumeId, setSelectedResumeId] = useState<string>("");
   const [data, setData] = useState<CareerData | null>(null);
@@ -171,4 +171,4 @@ const CareerPathPage = () => {
   );
 };
 
-export default CareerPathPage;
+export default CareerPath;
