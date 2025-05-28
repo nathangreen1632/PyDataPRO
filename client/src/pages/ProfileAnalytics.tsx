@@ -4,13 +4,6 @@ import AverageSalaryCard from '../components/charts/AverageSalaryCard';
 import JobTitlePieChart from '../components/charts/JobTitlePieChart';
 import { API_BASE } from '../utils/api.ts';
 
-interface Job {
-  title: string;
-  location: string;
-  salaryMin?: number;
-  salaryMax?: number;
-}
-
 interface SummaryData {
   average_salary: number;
   top_locations: Record<string, number>;
@@ -19,40 +12,25 @@ interface SummaryData {
 
 export const ProfileAnalytics = () => {
   const [summary, setSummary] = useState<SummaryData | null>(null);
-  const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const jobRes = await fetch(`${API_BASE}/jobs`);
-        if (!jobRes.ok) {
-          const errorText = await jobRes.text();
-          console.error('🔥 Job fetch failed:', errorText);
-          return;
-        }
-
-        const jobData = await jobRes.json();
-        if (!jobData.jobs?.length) {
-          console.warn('⚠️ No jobs returned from /jobs endpoint, skipping summary.');
-          return;
-        }
-
-        setJobs(jobData.jobs);
-
-        const summaryRes = await fetch(`${API_BASE}/analytics/salary-summary`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobs: jobData.jobs }),
+        const res = await fetch(`${API_BASE}/analytics/salary-summary`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         });
 
-        if (!summaryRes.ok) {
-          const summaryError = await summaryRes.text();
-          console.error('🔥 Salary summary fetch failed:', summaryError);
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('🔥 Salary summary fetch failed:', errorText);
           return;
         }
 
-        const summaryData = await summaryRes.json();
-        setSummary(summaryData);
+        const data = await res.json();
+        setSummary(data);
       } catch (err) {
         console.error('💥 Error loading analytics:', err);
       }
@@ -75,9 +53,11 @@ export const ProfileAnalytics = () => {
               </div>
             </div>
 
-
             <div className="mt-10">
-              <JobTitlePieChart titles={summary.common_titles} jobs={jobs} />
+              <JobTitlePieChart
+                titles={summary.common_titles}
+                jobs={[]} // empty array since jobs are no longer fetched
+              />
             </div>
           </>
         ) : (

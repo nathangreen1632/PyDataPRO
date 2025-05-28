@@ -46,7 +46,7 @@ def ask_openai_for_suggestions(skills: list[str], roles: list[str], user_name: s
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5,
-        max_tokens=600,  # 🔥 this should ensure ~40–50 words x 5
+        max_tokens=600,
     )
 
     reply = response.choices[0].message.content
