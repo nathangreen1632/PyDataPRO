@@ -55,10 +55,8 @@ def salary_summary(
     print(df.to_string(index=False))
     print("==================================\n")
 
-    # Drop rows where either salaryMin or salaryMax is missing
     df = df.dropna(subset=["salaryMin", "salaryMax"])
 
-    # Clean any potentially unsafe float values (like inf or nan)
     df["salaryMin"] = df["salaryMin"].apply(lambda x: x if math.isfinite(x) else None)
     df["salaryMax"] = df["salaryMax"].apply(lambda x: x if math.isfinite(x) else None)
 
@@ -103,6 +101,25 @@ def salary_summary(
 class SearchLog(BaseModel):
     query: str
 
+@router.get("/applied-jobs", response_model=List[str])
+def get_applied_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = db.execute(
+        text("""
+            SELECT DISTINCT ON ("title") "title"
+            FROM "user_analytics"
+            WHERE "userId" = :userId AND "action" = 'applied'
+            ORDER BY "title", "timestamp" DESC
+        """),
+        {"userId": str(current_user.id)}
+    )
+
+    titles = [row[0] for row in result.fetchall() if row[0]]
+    return titles
+
+
 @router.post("/search-history", status_code=status.HTTP_204_NO_CONTENT)
 def log_search_term(
     payload: SearchLog,
@@ -127,7 +144,7 @@ def log_search_term(
 
     db.commit()
 
-@router.delete("/search-history/{query}", status_code=204)
+@router.delete("/search-history/{query}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_search_term(
     query: str,
     db: Session = Depends(get_db),
@@ -141,6 +158,24 @@ def delete_search_term(
         {
             "userId": str(current_user.id),
             "query": query,
+        }
+    )
+    db.commit()
+
+@router.delete("/applied-jobs/{title}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_applied_job(
+    title: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    db.execute(
+        text("""
+            DELETE FROM "user_analytics"
+            WHERE "userId" = :userId AND "action" = 'applied' AND "title" = :title
+        """),
+        {
+            "userId": str(current_user.id),
+            "title": title,
         }
     )
     db.commit()
