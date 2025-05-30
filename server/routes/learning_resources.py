@@ -114,7 +114,6 @@ def fetch_courses_from_coursera(query: str) -> list[dict]:
         response.raise_for_status()
         courses = response.json().get("elements", [])
 
-        # Filter out courses with empty or useless descriptions
         return [
             course for course in courses
             if course.get("description") and len(course["description"].strip()) > 40
@@ -149,11 +148,11 @@ def format_course(course: dict) -> dict:
     full_description = course.get("description", "No description provided.").strip()
 
     # Soft cap to ~1000 characters, cut at nearest sentence boundary if possible
-    if len(full_description) > 1000:
+    if len(full_description) > 600:
         sentences = full_description.split(".")
         trimmed = ""
         for sentence in sentences:
-            if len(trimmed) + len(sentence) + 1 > 1000:
+            if len(trimmed) + len(sentence) + 1 > 600:
                 break
             trimmed += sentence.strip() + ". "
         description = trimmed.strip()
@@ -223,16 +222,16 @@ def condense_description(text: str) -> str:
             if not summary:
                 raise ValueError("Missing 'summary' in JSON.")
 
-            if len(summary) > 500:
+            if len(summary) > 600:
                 print(f"⚠️ Summary too long: {len(summary)} characters. Truncating.")
-                summary = summary[:497].rsplit(" ", 1)[0] + "..."
+                summary = summary[:597].rsplit(" ", 1)[0] + "..."
 
             return summary
 
         except ValueError as e:
             print(f"⚠️ Failed to parse JSON, falling back to raw truncation: {e}")
-            if len(raw_output) > 500:
-                raw_output = raw_output[:497].rsplit(" ", 1)[0] + "..."
+            if len(raw_output) > 600:
+                raw_output = raw_output[:597].rsplit(" ", 1)[0] + "..."
             return raw_output
 
     except Exception as e:
