@@ -179,43 +179,35 @@ def condense_description(text: str) -> str:
         response = client.chat.completions.create(
             model="gpt-4.1",
             temperature=0.5,
-            max_tokens=4500,
+            max_tokens=200,
             response_format={"type": "json_object"},
             messages=[
                 {
                     "role": "system",
-                    "content":
-                        "You are a professional summarization/condensing assistant. "
-                        "Your summaries must strictly follow user constraints and must **NEVER EXCEED 500 CHARACTERS**."
+                    "content": (
+                        "You are a professional summarization expert. "
+                        "Your summaries must follow user instructions exactly and NEVER exceed 5 sentences."
+                    )
                 },
                 {
                     "role": "user",
-                    "content":
-                        "Condense the following **text** into two **SINGLE PARAGRAPHS of NO MORE THAN 250 characters** each.\n"
-                        "⚠️ HARD LIMIT: Your total output must be UNDER 500 characters.\n"
-                        "🎯 Audience: Software developers browsing a course catalog.\n\n"
-                        "✅ FORMAT:\n"
-                        "Respond in this exact JSON format:\n"
-                        '{ "summary": "Final result here (under 500 characters)." }\n\n'
-                        "✅ Do:\n"
+                    "content": (
+                        "Summarize the following text into a concise, developer-focused summary of **5 sentences**.\n\n"
+                        "✅ Requirements:\n"
                         "- Be brief, technical, and insightful\n"
-                        "- Use plain language\n"
-                        "- Focus on developer-relevant takeaways\n"
-                        "- Use key terms, frameworks, or technical language\n"
-                        "- Verify the total character count is under 500 before responding\n\n"
+                        "- Use clear, plain language\n"
+                        "- Focus on practical takeaways for developers\n\n"
                         "❌ Do NOT:\n"
                         "- Use markdown, bullet points, titles, or emojis\n"
-                        "- Include course metadata, instructor names, dates, or structure\n"
-                        "- Exceed 500 characters total\n\n"
-                        "✅ GOOD EXAMPLE:\n"
-                        '{ \"summary\": \"Build functional web apps using HTML, CSS, and JavaScript. Learn to debug, refine, and prototype with AI guidance. Finish with projects and practical skills to build confidently.\" }\n\n'
-                        "❌ BAD EXAMPLE:\n"
-                        "This course walks you through building your own personalized AI assistant with HTML, CSS, JavaScript, and Supabase. You'll build a chatbot interface, integrate APIs, and deploy with custom voice interaction. Includes labs, docs, quizzes, and assignments...\n\n"
-                        "- Ensure your result fits the JSON format and is under 500 characters before returning.\n"
+                        "- Include course metadata, instructor names, dates, or structural descriptions\n\n"
+                        "⚠️ The final output MUST be a valid JSON object like this:\n"
+                        '{ "summary": "Your 5 sentence summary here." }\n\n'
                         "TEXT TO SUMMARIZE:\n\n"
                         f"{text}"
+                    )
                 }
             ]
+
         )
 
         raw_output = response.choices[0].message.content.strip()
