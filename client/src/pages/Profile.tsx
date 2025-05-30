@@ -22,6 +22,7 @@ interface DashboardData {
   favorites: Favorite[];
   keywords: string[];
   searchTerms: string[];
+  appliedJobs?: string[];
 }
 
 export const Profile = () => {
@@ -31,48 +32,63 @@ export const Profile = () => {
   const [loadingWidget, setLoadingWidget] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+  const fetchDashboard = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-        if (!res.ok) {
-          console.warn(`⚠️ Dashboard fetch failed: ${res.status}`);
-          setData({
-            userName: "Unauthorized",
-            resumes: [],
-            favorites: [],
-            keywords: [],
-            searchTerms: [],
-          });
-          return;
-        }
-
-        const json = await res.json();
-        setData(json);
-
-        const mostRecent = json.resumes?.[0];
-        if (mostRecent) {
-          setSelectedResumeId(String(mostRecent.id));
-          setSelectedResumeContent(mostRecent.content);
-        }
-      } catch (err) {
-        console.error("🚨 Dashboard error:", err);
+      if (!res.ok) {
+        console.warn(`⚠️ Dashboard fetch failed: ${res.status}`);
         setData({
-          userName: "Error",
+          userName: "Unauthorized",
           resumes: [],
           favorites: [],
           keywords: [],
           searchTerms: [],
+          appliedJobs: [],
         });
+        return;
       }
-    };
 
-    void fetchDashboard();
-  }, []);
+      const json = await res.json();
+
+      const appliedRes = await fetch(`${API_BASE}/analytics/applied-jobs`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const appliedJobs = appliedRes.ok ? await appliedRes.json() : [];
+
+      setData({
+        ...json,
+        appliedJobs,
+      });
+
+      const mostRecent = json.resumes?.[0];
+      if (mostRecent) {
+        setSelectedResumeId(String(mostRecent.id));
+        setSelectedResumeContent(mostRecent.content);
+      }
+    } catch (err) {
+      console.error("🚨 Dashboard error:", err);
+      setData({
+        userName: "Error",
+        resumes: [],
+        favorites: [],
+        keywords: [],
+        searchTerms: [],
+        appliedJobs: [],
+      });
+    }
+  };
+
+  void fetchDashboard();
+}, []);
+
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const chosenId = e.target.value;
@@ -105,30 +121,46 @@ export const Profile = () => {
           className="block w-fit hover:underline decoration-red-500 focus:outline-none"
           aria-label="Visit CVitaePRO"
         >
-          <h2 className="text-xl font-semibold mb-2">
-            <span className="test-white front font-semibold mb-2">Your Resumes from CVitae</span>
-            <span className="text-red-500">PRO</span></h2>
+          <h2 className="text-xl font-semibold mb-4">
+            <span className="text-white font-semibold">Your Resumes from CVitae</span>
+            <span className="text-red-500">PRO</span>
+          </h2>
         </a>
-        <div className="flex flex-wrap gap-2 ml-6">
-          {data.resumes.map((r) => (
-            <span
-              key={r.id}
-              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
-            >
-              {r.title} — {new Date(r.created_at).toLocaleDateString()}
-            </span>
-          ))}
-        </div>
-      </section>
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Common Resume Keywords</h2>
-        <div className="flex flex-wrap gap-2 ml-6">
-          {data.keywords.map((k) => (
-            <span key={k} className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold capitalize">
-              {k}
-            </span>
-          ))}
+        <div className="bg-gray-800 rounded-lg p-4 shadow">
+          {data.resumes.length >= 6 ? (
+            <div className="grid grid-cols-3 gap-x-6 gap-y-3 ml-6">
+              {Array.from({ length: 3 }).map((_, colIndex) => {
+                const start = colIndex * 5;
+                const end = start + 5;
+                const resumes = data.resumes.slice(start, end);
+
+                return (
+                  <div key={`col-${resumes[0]?.id ?? colIndex}`} className="space-y-2">
+                    {resumes.map((r) => (
+                      <span
+                        key={r.id}
+                        className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold w-full"
+                      >
+                        {r.title} — {new Date(r.created_at).toLocaleDateString()}
+                      </span>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2 ml-6">
+              {data.resumes.map((r) => (
+                <span
+                  key={r.id}
+                  className="bg-gray-700 text-white px-4 py-2 rounded-full text-sm font-semibold"
+                >
+                  {r.title} — {new Date(r.created_at).toLocaleDateString()}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -146,78 +178,142 @@ export const Profile = () => {
             <span className="text-white"> Searches</span>
           </h2>
         </a>
-        <div className="flex flex-wrap gap-2 ml-6">
-          {data.searchTerms.map((term, l) => (
-            <span
-              key={l}
-              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-2"
-            >
-              <span>{term}</span>
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch(
-                      `${API_BASE}/analytics/search-history/${encodeURIComponent(term)}`,
-                      {
-                        method: 'DELETE',
-                        headers: {
-                          Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                      }
-                    );
 
-                    if (res.ok) {
-                      toast.success(`Deleted "${term}"`);
-                      setData((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              searchTerms: prev.searchTerms.filter((t) => t !== term),
+        <div className="bg-gray-800 rounded-lg p-4 shadow">
+          <div className="grid grid-cols-3 gap-x-4 ml-6">
+            {Array.from({ length: 3 }).map((_, colIndex) => {
+              const start = colIndex * 5;
+              const end = start + 10;
+              const terms = data.searchTerms.slice(start, end);
+              const colKey = terms[0] ? `col-${terms[0]}` : `col-empty-${colIndex}`;
+
+            return (
+             <div key={colKey} className="space-y-2">
+              {terms.map((term, localIndex) => {
+                const globalIndex = start + localIndex;
+
+                return (
+                  <span
+                    key={`term-${globalIndex}`}
+                    className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center justify-between"
+                  >
+                    <span>{term}</span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(
+                            `${API_BASE}/analytics/search-history/${globalIndex}`,
+                            {
+                              method: 'DELETE',
+                              headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                              },
                             }
-                          : prev
-                      );
-                    } else {
-                      toast.error("Failed to delete term.");
-                    }
-                  } catch (err) {
-                    console.error("❌ Failed to delete search term:", err);
-                    toast.error("An error occurred while deleting.");
-                  }
-                }}
-                className="ml-2 text-white hover:text-red-300"
-                aria-label={`Delete ${term}`}
-              >
-                ❌
-              </button>
-            </span>
-          ))}
+                          );
+
+                          if (res.ok) {
+                            toast.success(`Deleted "${term}"`);
+                            setData((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    searchTerms: prev.searchTerms.filter(
+                                      (_, i) => i !== globalIndex
+                                    ),
+                                  }
+                                : prev
+                            );
+                          } else {
+                            toast.error("Failed to delete term.");
+                          }
+                        } catch (err) {
+                          console.error("❌ Failed to delete search term:", err);
+                          toast.error("An error occurred while deleting.");
+                        }
+                      }}
+                      className="ml-2 text-white hover:text-red-300"
+                      aria-label={`Delete ${term}`}
+                    >
+                      ❌
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+            );
+            })}
+          </div>
         </div>
       </section>
 
       <section>
+        <h2 className="text-xl font-semibold mb-2">Applied Jobs</h2>
+          <div className="bg-gray-800 rounded-lg p-4 shadow">
+            <div className="grid grid-cols-2 gap-x-4 ml-6">
+              {Array.from({ length: 2 }).map((_, colIndex) => {
+                const start = colIndex * 5;
+                const end = start + 5;
+                const columnItems = data.appliedJobs?.slice(start, end) ?? [];
+
+                return (
+                  <div key={`col-${columnItems[0] ?? colIndex}`} className="space-y-2">
+                    {columnItems.map((title) => (
+                      <span
+                        key={`applied-${title}`}
+                        className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center justify-between"
+                      >
+                        <span>{title}</span>
+                        <span className="ml-2 bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                          Applied
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-2">Common Favorited Keywords</h2>
+          <div className="bg-gray-800 rounded-lg p-4 shadow">
+            <div className="flex flex-wrap gap-2 ml-6">
+              {data.keywords.map((k) => (
+                <span key={k} className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold capitalize">
+                  {k}
+                </span>
+              ))}
+            </div>
+          </div>
+      </section>
+
+      <section>
         <h2 className="text-xl font-semibold mb-2">Favorited Jobs</h2>
-        <div className="grid grid-cols-2 gap-x-4 ml-6">
-          <div className="space-y-2">
-            {data.favorites.slice(0, 5).map((f) => (
-              <span
-                key={`col1-${f.id}`}
-                className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
-              >
-                {f.title} at {f.company}
-              </span>
-            ))}
+          <div className="bg-gray-800 rounded-lg p-4 shadow">
+            <div className="grid grid-cols-2 gap-x-4 ml-6">
+              <div className="space-y-2">
+                {data.favorites.slice(0, 5).map((f) => (
+                  <span
+                    key={`col1-${f.id}`}
+                    className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
+                  >
+                    {f.title} at {f.company}
+                  </span>
+                ))}
+              </div>
+              <div className="space-y-2">
+                {data.favorites.slice(5, 10).map((f) => (
+                  <span
+                    key={`col2-${f.id}`}
+                    className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
+                  >
+                    {f.title} at {f.company}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="space-y-2">
-            {data.favorites.slice(5, 10).map((f) => (
-              <span
-                key={`col2-${f.id}`}
-                className="block bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-semibold"
-              >
-                {f.title} at {f.company}
-              </span>
-            ))}
-          </div>
-        </div>
       </section>
 
       {data.resumes.length > 0 && localStorage.getItem("userId") && (
@@ -234,7 +330,7 @@ export const Profile = () => {
                 id="resume-selector"
                 value={selectedResumeId}
                 onChange={handleResumeChange}
-                className="bg-gray-800 text-gray-300 p-2 rounded w-full"
+                className="bg-gray-800 text-gray-300 p-3 rounded w-full appearance-auto"
               >
                 {data.resumes.map((r) => (
                   <option key={r.id} value={String(r.id)}>
