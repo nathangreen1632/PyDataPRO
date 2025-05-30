@@ -46,7 +46,7 @@ const Navbar = ({
           {token && (
             <button
               onClick={handleLogout}
-              className="hover:text-red-400 transition-all duration-200 focus:outline-none"
+              className="hover:text-red-500 transition-all duration-200 focus:outline-none"
             >
               Logout
             </button>
