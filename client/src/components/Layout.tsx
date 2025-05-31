@@ -17,9 +17,12 @@ const Layout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar token={token} handleLogout={handleLogout} />
 
-      <main className="flex-1 container mx-auto px-6 pt-12 pb-6">
-        <Outlet />
+      <main className="flex-1">
+        <div className="min-h-[calc(100vh-128px)] px-4  sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
       </main>
+
 
       <footer className="bg-white dark:bg-gray-800 shadow-inner py-4">
         <div className="container mx-auto text-center text-gray-500 dark:text-gray-400">

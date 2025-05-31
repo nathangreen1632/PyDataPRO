@@ -34,7 +34,6 @@ export const LearningResources = () => {
 
   const hasFetched = useRef(false);
 
-  // Fetch dashboard resumes
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -69,7 +68,6 @@ export const LearningResources = () => {
     void fetchDashboard();
   }, []);
 
-  // Fetch learning resources
   const fetchCourses = async (resumeText: string) => {
     setCoursesLoading(true);
     setError(null);
@@ -102,7 +100,6 @@ export const LearningResources = () => {
     }
   };
 
-  // Initial course fetch
   useEffect(() => {
     if (!selectedResumeContent || hasFetched.current) return;
     hasFetched.current = true;
@@ -131,14 +128,15 @@ export const LearningResources = () => {
   };
 
   return (
-    <div className="p-4 text-white">
-      <h1 className="text-2xl font-bold mb-4">Recommended Learning Resources</h1>
+  <div className="min-h-screen bg-gray-900 text-white px-4 py-8">
+    <div className="max-w-6xl mx-auto space-y-8">
+      <h1 className="text-3xl font-bold text-center">Recommended Learning Resources</h1>
 
       {resumes.length > 1 && (
-        <div className="mb-4">
+        <div>
           <label
             htmlFor="resume-select"
-            className="block text-lg font-medium text-gray-300 mb-1"
+            className="block text-lg font-medium text-gray-300 mb-2"
           >
             Choose Resume to Analyze:
           </label>
@@ -146,7 +144,7 @@ export const LearningResources = () => {
             id="resume-select"
             value={selectedResumeId}
             onChange={handleResumeChange}
-            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
+            className="bg-gray-800 text-white p-3 rounded w-full sm:w-auto mb-4"
           >
             {resumes.map((r) => (
               <option key={r.id} value={String(r.id)}>
@@ -158,9 +156,9 @@ export const LearningResources = () => {
       )}
 
       {skills.length > 0 && (
-        <section className="mb-6">
+        <section>
           <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
-          <div className="flex flex-wrap gap-2 ml-6">
+          <div className="flex flex-wrap gap-2 ml-2">
             {skills.map((skill, i) => (
               <span
                 key={i}
@@ -184,8 +182,7 @@ export const LearningResources = () => {
 
       {!loading && !error && (
         <>
-          {/* Refresh Button */}
-          <div className="flex justify-start mb-4">
+          <div className="flex justify-start">
             <button
               onClick={handleRefresh}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-semibold transition"
@@ -194,28 +191,24 @@ export const LearningResources = () => {
             </button>
           </div>
 
-          {/* No results fallback */}
           {courses.length === 0 ? (
             <p className="text-gray-400 text-center py-8">
               No learning resources found for this resume.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
               {courses.map((course) => (
                 <div
                   key={course.id}
-                  className="bg-gray-800 text-white p-4 rounded-lg shadow-md"
+                  className="bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col justify-between"
                 >
-                  <h1 className="text-xl text-sky-400 font-semibold">{course.title}</h1>
-                  <div className="mt-6">
-                    <p className="text-sm text-gray-300 mb-2">{course.description}</p>
-                  </div>
-                  <div className="mb-6"></div>
+                  <h2 className="text-xl text-sky-400 font-semibold mb-2">{course.title}</h2>
+                  <p className="text-sm text-gray-300 mb-4">{course.description}</p>
                   <a
                     href={course.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-600"
+                    className="text-emerald-400 hover:text-emerald-600 text-sm mt-auto"
                   >
                     View Course on {course.platform}
                   </a>
@@ -226,5 +219,7 @@ export const LearningResources = () => {
         </>
       )}
     </div>
-  );
+  </div>
+);
+
 };

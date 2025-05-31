@@ -115,58 +115,64 @@ const CareerPath = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8 space-y-6">
-      <h1 className="text-3xl font-bold">🧠 Career Path Insights</h1>
+    <div className="min-h-screen bg-gray-900 text-white px-4 py-8">
+      <div className="max-w-5xl mx-auto space-y-10">
+        <h1 className="text-3xl font-bold text-center">Career Path Insights</h1>
 
-      {resumes.length > 1 && (
-        <div>
-          <label
-            htmlFor="resume-select"
-            className="block text-xl font-medium text-white mb-1"
-          >
-            Choose Resume to Analyze:
-          </label>
-          <select
-            id="resume-select"
-            value={selectedResumeId}
-            onChange={handleResumeChange}
-            className="bg-gray-700 text-white p-2 rounded w-full mb-4"
-          >
-            {resumes.map((r) => (
-              <option key={r.id} value={String(r.id)}>
-                {r.title} — {new Date(r.created_at).toLocaleDateString()}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
-        <div className="flex flex-wrap gap-2 ml-6">
-          {data.skillsExtracted.map((skill, i) => (
-            <span
-              key={i}
-              className="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm"
+        {resumes.length > 1 && (
+          <div>
+            <label
+              htmlFor="resume-select"
+              className="block text-lg font-medium text-white mb-1"
             >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </section>
+              Choose Resume to Analyze:
+            </label>
+            <select
+              id="resume-select"
+              value={selectedResumeId}
+              onChange={handleResumeChange}
+              className="bg-gray-800 text-white p-3 rounded w-full sm:w-auto mb-4"
+            >
+              {resumes.map((r) => (
+                <option key={r.id} value={String(r.id)}>
+                  {r.title} — {new Date(r.created_at).toLocaleDateString()}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Suggested Roles</h2>
-        <ul className="space-y-2">
-          {data.suggestedRoles.map((r, idx) => (
-            <li key={idx} className="bg-gray-800 p-4 rounded shadow text-white">
-              <p className="font-bold text-lg">{r.role}</p>
-              <p className="text-sm text-gray-400">{r.explanation}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <section>
+          <h2 className="text-xl font-semibold mb-2">Skills Extracted</h2>
+          <div className="bg-gray-800 rounded-xl p-4 shadow">
+            <div className="flex flex-wrap gap-2">
+              {data.skillsExtracted.map((skill, i) => (
+                <span
+                  key={i}
+                  className="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-2">Suggested Roles</h2>
+          <div className="space-y-4">
+            {data.suggestedRoles.map((r, idx) => (
+              <div
+                key={idx}
+                className="bg-gray-800 p-4 rounded-xl shadow text-white"
+              >
+                <p className="font-bold text-lg">{r.role}</p>
+                <p className="text-sm text-gray-400 mt-1">{r.explanation}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

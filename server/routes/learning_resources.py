@@ -114,7 +114,6 @@ def fetch_courses_from_coursera(query: str) -> list[dict]:
         response.raise_for_status()
         courses = response.json().get("elements", [])
 
-        # Filter out courses with empty or useless descriptions
         return [
             course for course in courses
             if course.get("description") and len(course["description"].strip()) > 40
@@ -149,11 +148,11 @@ def format_course(course: dict) -> dict:
     full_description = course.get("description", "No description provided.").strip()
 
     # Soft cap to ~1000 characters, cut at nearest sentence boundary if possible
-    if len(full_description) > 1000:
+    if len(full_description) > 600:
         sentences = full_description.split(".")
         trimmed = ""
         for sentence in sentences:
-            if len(trimmed) + len(sentence) + 1 > 1000:
+            if len(trimmed) + len(sentence) + 1 > 600:
                 break
             trimmed += sentence.strip() + ". "
         description = trimmed.strip()
@@ -179,43 +178,35 @@ def condense_description(text: str) -> str:
         response = client.chat.completions.create(
             model="gpt-4.1",
             temperature=0.5,
-            max_tokens=4500,
+            max_tokens=200,
             response_format={"type": "json_object"},
             messages=[
                 {
                     "role": "system",
-                    "content":
-                        "You are a professional summarization/condensing assistant. "
-                        "Your summaries must strictly follow user constraints and must **NEVER EXCEED 500 CHARACTERS**."
+                    "content": (
+                        "You are a professional summarization expert. "
+                        "Your summaries must follow user instructions exactly and NEVER exceed 5 sentences."
+                    )
                 },
                 {
                     "role": "user",
-                    "content":
-                        "Condense the following **text** into two **SINGLE PARAGRAPHS of NO MORE THAN 250 characters** each.\n"
-                        "⚠️ HARD LIMIT: Your total output must be UNDER 500 characters.\n"
-                        "🎯 Audience: Software developers browsing a course catalog.\n\n"
-                        "✅ FORMAT:\n"
-                        "Respond in this exact JSON format:\n"
-                        '{ "summary": "Final result here (under 500 characters)." }\n\n'
-                        "✅ Do:\n"
+                    "content": (
+                        "Summarize the following text into a concise, developer-focused summary of **5 sentences**.\n\n"
+                        "✅ Requirements:\n"
                         "- Be brief, technical, and insightful\n"
-                        "- Use plain language\n"
-                        "- Focus on developer-relevant takeaways\n"
-                        "- Use key terms, frameworks, or technical language\n"
-                        "- Verify the total character count is under 500 before responding\n\n"
+                        "- Use clear, plain language\n"
+                        "- Focus on practical takeaways for developers\n\n"
                         "❌ Do NOT:\n"
                         "- Use markdown, bullet points, titles, or emojis\n"
-                        "- Include course metadata, instructor names, dates, or structure\n"
-                        "- Exceed 500 characters total\n\n"
-                        "✅ GOOD EXAMPLE:\n"
-                        '{ \"summary\": \"Build functional web apps using HTML, CSS, and JavaScript. Learn to debug, refine, and prototype with AI guidance. Finish with projects and practical skills to build confidently.\" }\n\n'
-                        "❌ BAD EXAMPLE:\n"
-                        "This course walks you through building your own personalized AI assistant with HTML, CSS, JavaScript, and Supabase. You'll build a chatbot interface, integrate APIs, and deploy with custom voice interaction. Includes labs, docs, quizzes, and assignments...\n\n"
-                        "- Ensure your result fits the JSON format and is under 500 characters before returning.\n"
+                        "- Include course metadata, instructor names, dates, or structural descriptions\n\n"
+                        "⚠️ The final output MUST be a valid JSON object like this:\n"
+                        '{ "summary": "Your 5 sentence summary here." }\n\n'
                         "TEXT TO SUMMARIZE:\n\n"
                         f"{text}"
+                    )
                 }
             ]
+
         )
 
         raw_output = response.choices[0].message.content.strip()
@@ -231,16 +222,16 @@ def condense_description(text: str) -> str:
             if not summary:
                 raise ValueError("Missing 'summary' in JSON.")
 
-            if len(summary) > 500:
+            if len(summary) > 600:
                 print(f"⚠️ Summary too long: {len(summary)} characters. Truncating.")
-                summary = summary[:497].rsplit(" ", 1)[0] + "..."
+                summary = summary[:597].rsplit(" ", 1)[0] + "..."
 
             return summary
 
         except ValueError as e:
             print(f"⚠️ Failed to parse JSON, falling back to raw truncation: {e}")
-            if len(raw_output) > 500:
-                raw_output = raw_output[:497].rsplit(" ", 1)[0] + "..."
+            if len(raw_output) > 600:
+                raw_output = raw_output[:597].rsplit(" ", 1)[0] + "..."
             return raw_output
 
     except Exception as e:

@@ -75,12 +75,12 @@ export const CareerSuggestionsCard = ({
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 shadow">
-      <h2 className="text-xl font-semibold mb-2">🧭 Career Suggestions</h2>
+    <div className="bg-gray-800 rounded-lg m-4 p-4 shadow">
+      <h2 className="text-white text-xl font-semibold mb-2">Career Suggestions</h2>
 
       <button
         onClick={() => setExpanded(!expanded)}
-        className="bg-emerald-700 px-4 py-2 rounded-full text-md font-semibold hover:bg-emerald-900 transition"
+        className="bg-emerald-600 px-4 py-2 rounded-full text-md font-semibold hover:bg-emerald-900 transition"
       >
         {expanded ? "Hide Suggestions" : "Show Suggestions"}
       </button>
@@ -105,7 +105,7 @@ export const CareerSuggestionsCard = ({
               {data.skillsExtracted.map((s) => (
                 <span
                   key={s}
-                  className="bg-indigo-600 text-white font-semibold px-3 py-1 rounded-full text-xs"
+                  className="bg-indigo-600 text-white font-semibold px-3 py-1 rounded-full text-sm"
                 >
                   {s}
                 </span>

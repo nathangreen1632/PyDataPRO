@@ -31,43 +31,42 @@ const InterviewGenerator = () => {
   };
 
  return (
-    <div className="flex flex-col items-center px-2">
-      {/* Sticky Search Bar */}
-      <h1 className="text-2xl font-bold text-white mb-4">Interview Question Generator</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="sticky top-6 z-10 bg-gray-900 p-4 rounded-xl shadow-lg w-full max-w-2xl mb-6"
-      >
-        <input
-          type="text"
-          value={jobTitle}
-          onChange={(e) => setJobTitle(e.target.value)}
-          placeholder="Enter a job title (e.g. Frontend Developer)"
-          className="w-full p-3 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
-        />
+    <div className="min-h-screen bg-gray-900 text-white px-4 py-8">
+      <div className="max-w-5xl mx-auto space-y-10">
+        <h1 className="text-3xl font-bold text-center">Interview Question Generator</h1>
 
-        <button
-          type="submit"
-          className="block w-72 mx-auto mt-4 bg-emerald-700 text-white font-medium py-3 px-4 rounded-full hover:bg-emerald-900 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+        <form
+          onSubmit={handleSubmit}
+          className="bg-gray-800 p-6 rounded-2xl shadow-xl space-y-4"
         >
-          {loading ? 'Generating...' : 'Generate Questions'}
-        </button>
-      </form>
+          <input
+            type="text"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+            placeholder="Enter a job title (e.g. Frontend Developer)"
+            className="w-full p-3 bg-gray-700 text-white text-center placeholder-gray-400 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
 
-      {/* Questions Container */}
-      {questions.length > 0 && (
-      <div className="bg-gray-800 border-2 border-gray-900 text-white p-6 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[75vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold text-white text-center mb-2">Interview Questions</h2>
-        <ul className="space-y-3 list-disc list-inside text-gray-300">
-          {questions.map((q, idx) => (
-            <li key={idx} className="text-base">
-              {q}
-            </li>
-          ))}
-        </ul>
+          <button
+            type="submit"
+            className="block w-full sm:w-72 mx-auto mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-full transition focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            {loading ? "Generating..." : "Generate Questions"}
+          </button>
+        </form>
+
+        {questions.length > 0 && (
+          <div className="bg-gray-800 p-6 rounded-2xl shadow-2xl max-h-[60vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold text-center mb-4">Interview Questions</h2>
+            <ul className="space-y-3 list-disc list-inside text-gray-300">
+              {questions.map((q, idx) => (
+                <li key={idx} className="text-base">{q}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-    )}
-      </div>
+    </div>
   );
 };
 
