@@ -48,59 +48,57 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <div className="min-h-screen bg-gray-900 px-4 py-12 flex items-center justify-center">
       <form
         onSubmit={handleRegister}
-        className="flex flex-col bg-white dark:bg-gray-800 border border-gray-700 shadow-xl rounded-2xl p-8 space-y-4 w-full max-w-md"
+        className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-2xl shadow-xl p-8 space-y-4"
       >
-        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white">
-          Register
-        </h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-2">Create Account</h2>
 
         <input
           type="text"
           autoComplete="given-name"
           placeholder="First Name"
-          className="p-3 border border-gray-300 dark:border-gray-600 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           required
+          className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
         <input
           type="text"
           autoComplete="family-name"
           placeholder="Last Name"
-          className="p-3 border border-gray-300 dark:border-gray-600 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           required
+          className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
         <input
           type="email"
           autoComplete="email"
           placeholder="Email"
-          className="p-3 border border-gray-300 dark:border-gray-600 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
 
         <div className="relative">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             placeholder="Password"
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white pr-10"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-3 text-gray-500 dark:text-gray-400"
+            className="absolute right-3 top-[0.9rem] text-gray-400 hover:text-white"
             tabIndex={-1}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -109,18 +107,18 @@ const Register: React.FC = () => {
 
         <div className="relative">
           <input
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             autoComplete="off"
             placeholder="Confirm Password"
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white pr-10"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute right-3 top-3 text-gray-500 dark:text-gray-400"
+            className="absolute right-3 top-[0.9rem] text-gray-400 hover:text-white"
             tabIndex={-1}
           >
             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -128,12 +126,12 @@ const Register: React.FC = () => {
         </div>
 
         {password && confirmPassword && password !== confirmPassword && (
-          <p className="text-sm text-red-500">Passwords do not match.</p>
+          <p className="text-sm text-red-500 text-center">Passwords do not match.</p>
         )}
 
         <button
           type="submit"
-          className="p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold"
+          className="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition"
         >
           Register
         </button>
