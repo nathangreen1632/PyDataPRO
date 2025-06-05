@@ -7,7 +7,93 @@ from server.models.favorite_job import FavoriteJob
 from server.models.search_term import SearchTerm
 from server.utils.auth import get_current_user
 
+import spacy
+import re
+
+nlp = spacy.load("en_core_web_trf")
 router = APIRouter()
+
+def extract_skills_section(markdown: str) -> str:
+    skills_pattern = r"(?:^|\n)(?:#+|\*\*)\s*Skills[:\s]*\**\s*\n(.*?)(?=\n[#\*]{1,3}|\n##|\Z)"
+    match = re.search(skills_pattern, markdown, re.IGNORECASE | re.DOTALL)
+    if match:
+        return match.group(1).strip(" \n*")
+    return ""
+
+def extract_technical_keywords(text: str) -> set:
+    doc = nlp(text)
+    raw_phrases = set()
+
+    # Blacklists to reduce noise
+    weak_words = {
+        "senior", "junior", "full", "stack", "software", "engineer", "developer",
+        "account", "sector", "public", "solutions", "customer", "manager",
+        "technology", "specialist", "executive", "graduate", "intern", "prompt", "citi",
+        "commodities", "remote", "application", "computer", "(typescript", "houston", "austin",
+        "chicago", "new york", "nyc", "boston", "san francisco", "sf", "la", "los angeles",
+        "dallas", "denver", "seattle", "washington", "atlanta", "miami", "phoenix",
+        "portland", "pittsburgh", "philadelphia", "baltimore", "charlotte", "raleigh",
+        "nashville", "orlando", "san diego", "sacramento", "salt lake city", "st. louis",
+        "minneapolis", "kansas city", "cincinnati", "columbus", "indianapolis",
+        "detroit", "cleveland", "milwaukee", "tampa", "houston", "dallas", "austin",
+        "san jose", "las vegas", "albuquerque", "tucson", "fresno", "long beach",
+        "mesa", "scottsdale", "irvine", "santa clara", "oakland", "bakersfield",
+        "anaheim", "santa ana", "riverside", "stockton", "chula vista", "irvine",
+        "san bernardino", "modesto", "fontana", "moreno valley", "glendale",
+        "huntington beach", "garden grove", "santa rosa", "ontario", "rancho cucamonga",
+        "oxnard", "palmdale", "salinas", "pomona", "escondido", "torrance",
+        "pasadena", "hayward", "fullerton", "orange", "el monte", "thousand oaks",
+        "visalia", "simi valley", "concord", "roseville", "santa clara", "sunnyvale",
+        "santa cruz", "san mateo", "san francisco bay area", "silicon valley"
+    }
+
+    def is_valuable_phrase(phrase: str) -> bool:
+        words = phrase.split()
+        if len(words) == 1:
+            return words[0].lower() not in weak_words and words[0].istitle()
+        return all(w.lower() not in weak_words for w in words) and 1 <= len(words) <= 3
+
+    def add_cleaned_phrase(raw: str):
+        # Split by common delimiters like commas or slashes
+        parts = re.split(r"[\/,|•]", raw)
+        for p in parts:
+            p = p.strip()
+            if is_valuable_phrase(p):
+                raw_phrases.add(p)
+
+    # Step 1: Named entities (multi-word ORG/PRODUCT/SKILL)
+    for ent in doc.ents:
+        if ent.label_ in {"ORG", "PRODUCT", "SKILL", "LANGUAGE", "WORK_OF_ART"}:
+            add_cleaned_phrase(ent.text)
+
+    # Step 2: Noun chunks like "React Native"
+    for chunk in doc.noun_chunks:
+        add_cleaned_phrase(chunk.text)
+
+    # Step 3: Strong standalone tokens (not already captured)
+    for token in doc:
+        word = token.text.strip()
+        if (
+            token.pos_ in {"PROPN", "NOUN"}
+            and len(word) > 2
+            and not token.is_stop
+            and word.lower() not in weak_words
+        ):
+            raw_phrases.add(word)
+
+    # Step 4: Deduplicate - ignore shorter substrings if longer exists
+    final_keywords = set()
+    seen = set()
+
+    for kw in sorted(raw_phrases, key=len):  # shortest first
+        lower_kw = kw.lower()
+        if not any(lower_kw in s for s in seen):
+            final_keywords.add(kw.title())
+            seen.add(lower_kw)
+
+    return final_keywords
+
+
 
 @router.get("/dashboard")
 def get_dashboard_data(
@@ -29,57 +115,30 @@ def get_dashboard_data(
     )
 
     recent_terms = (
-        db.query(SearchTerm.query)
+        db.query(SearchTerm)
         .filter(SearchTerm.userId == current_user.id)
         .order_by(SearchTerm.createdAt.desc())
         .all()
     )
 
-    favorites_titles = [str(f.title or "") for f in favorites]
-    search_queries = [str(t[0]) for t in recent_terms]
-    combined_text = " ".join(favorites_titles + search_queries).lower()
+    # Step 1: Extract Skills Section from Resumes
+    all_skills_text = []
+    for r in resumes:
+        skills_section = extract_skills_section(r.content or "")
+        if skills_section:
+            all_skills_text.append(skills_section)
+    combined_skills = "\n".join(all_skills_text)
+    resume_keywords = extract_technical_keywords(combined_skills)
 
-    keywords= [
-        "python", "react", "developer", "project", "manager", "engineer", "ai", "full-stack", "node", "typescript",
-        "aws", "docker", "kubernetes", "sql", "nosql", "cloud", "devops", "agile", "scrum", "ci/cd",
-        "microservices", "graphql", "rest", "api", "ux/ui", "design", "testing", "automation", "data", "analytics",
-        "business", "intelligence", "machine", "learning", "deep", "big", "etl", "pipeline", "visualization",
-        "dashboard", "reporting", "kanban", "leadership", "communication", "teamwork", "collaboration", "problem-solving",
-        "critical-thinking", "creativity", "innovation", "adaptability", "flexibility", "time-management",
-        "organization", "prioritization", "attention-to-detail", "customer-service", "sales", "marketing",
-        "strategy", "business-development", "negotiation", "presentation", "public-speaking", "networking",
-        "relationship-building", "conflict-resolution", "empathy", "emotional-intelligence", "cultural-competence",
-        "diversity-inclusion", "sustainability", "social-responsibility", "ethics", "integrity", "professionalism",
-        "work-ethic", "motivation", "initiative", "self-starter", "entrepreneurship", "risk-management",
-        "compliance", "regulations", "policies", "procedures", "quality-assurance", "quality-control",
-        "continuous-improvement", "lean", "six-sigma", "project-management", "program-management",
-        "portfolio-management", "change-management", "stakeholder-management", "resource-management",
-        "budgeting", "forecasting", "financial-analysis", "cost-management", "performance-management",
-        "key-performance-indicators", "metrics", "data-analysis", "data-mining", "data-visualization",
-        "data-governance", "data-quality", "data-security", "data-privacy", "data-compliance",
-        "data-architecture", "data-modeling", "data-integration", "data-migration", "data-warehousing",
-        "data-lakes", "data-streaming", "data-pipelines", "data-processing", "data-transformation",
-        "data-cleaning", "data-preparation", "data-enrichment", "data-analytics", "data-science",
-        "data-engineering", "data-management", "data-strategy", "html", "css", "tailwind", "sass",
-        "responsive-design", "cross-browser", "accessibility", "web-performance", "express", "django",
-        "flask", "fastapi", "spring", "postgresql", "mysql", "mongodb", "redis", "restful", "gcp",
-        "azure-devops", "cloudwatch", "cloudfront", "amplify", "serverless", "lambda", "s3", "ec2",
-        "eks", "rds", "jenkins", "github-actions", "gitlab-ci", "circleci", "terraform", "ansible",
-        "helm", "monitoring", "alerting", "java", "c#", "c++", "go", "ruby", "php", "swift", "rust",
-        "bash", "shell", "matlab", "jest", "mocha", "cypress", "pytest", "unit-testing",
-        "integration-testing", "e2e-testing", "tdd", "bdd", "nlp", "transformers", "huggingface",
-        "openai", "chatgpt", "llm", "prompt-engineering", "langchain", "fine-tuning", "tokenization", "product-management",
-        "user-research", "user-journey", "kpis", "roi", "market-analysis", "go-to-market", "jira",
-        "confluence", "slack", "notion", "miro", "figma", "zoom", "asynchronous", "remote-work",
-        "pair-programming", "resilience", "ownership", "accountability", "mentorship", "curiosity",
-        "growth-mindset", "self-awareness", "bias-for-action", "software"
-    ]
+    # Step 2: Combine search titles and favorite titles
+    favorite_titles = [f.title or "" for f in favorites]
+    search_titles = [t.title or "" for t in recent_terms]
+    combined_interest_text = " ".join(favorite_titles + search_titles)
+    favorited_keywords = extract_technical_keywords(combined_interest_text)
 
-    keywords = [kw for kw in keywords if kw in combined_text]
-
-    # Resume keyword logic
-    resume_text = " ".join([r.content or "" for r in resumes]).lower()
-    resume_keywords = [kw for kw in keywords if kw in resume_text]
+    # Step 3: Overlap resume skills with user interest keywords
+    relevant_resume_keywords = sorted(resume_keywords & favorited_keywords)
+    sorted_favorited_keywords = sorted(favorited_keywords)
 
     return {
         "userName": current_user.firstName,
@@ -91,7 +150,7 @@ def get_dashboard_data(
             {"id": f.id, "title": f.title, "company": f.company}
             for f in favorites
         ],
-        "keywords": keywords,
-        "resumeKeywords": resume_keywords,
-        "searchTerms": [t[0] for t in recent_terms]
+        "keywords": sorted_favorited_keywords,      # From search + favorite titles
+        "resumeKeywords": relevant_resume_keywords,  # Skills matching user interest
+        "searchTerms": [t.query for t in recent_terms],  # Full raw search bar entries
     }
