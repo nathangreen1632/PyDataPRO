@@ -99,7 +99,9 @@ def salary_summary(
     }
 
 class SearchLog(BaseModel):
-    query: str
+    title: Optional[str] = None
+    location: Optional[str] = None
+    query: Optional[str] = None
 
 @router.get("/applied-jobs", response_model=List[str])
 def get_applied_jobs(
@@ -126,17 +128,26 @@ def log_search_term(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    title = (payload.title or "").strip()
+    location = (payload.location or "").strip()
+    query = (payload.query or f"{title} {location}").strip()
+
+    if not query:
+        return  # Nothing to log
+
     now = datetime.now(timezone.utc)
 
     db.execute(
         text("""
-            INSERT INTO "SearchTerms" ("id", "userId", "query", "createdAt", "updatedAt")
-            VALUES (:id, :userId, :query, :createdAt, :updatedAt)
+            INSERT INTO "SearchTerms" ("id", "userId", "title", "location", "query", "createdAt", "updatedAt")
+            VALUES (:id, :userId, :title, :location, :query, :createdAt, :updatedAt)
         """),
         {
             "id": str(uuid.uuid4()),
             "userId": str(current_user.id),
-            "query": payload.query.strip(),
+            "title": title or None,
+            "location": location or None,
+            "query": query,
             "createdAt": now,
             "updatedAt": now
         }
