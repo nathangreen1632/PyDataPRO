@@ -10,7 +10,9 @@ export const CareerGistSearches = ({
   token: string;
   onTermDeleted?: (term: string, index: number) => void;
 }) => {
-  const [localSearchTerms, setLocalSearchTerms] = useState<string[]>([]);
+  const [optimisticallyDeleted, setOptimisticallyDeleted] = useState<
+    { term: string; index: number }[]
+  >([]);
 
   const {
     data: searchTerms = [],
@@ -19,21 +21,46 @@ export const CareerGistSearches = ({
   } = useQuery<string[]>({
     queryKey: ["searchTerms", token],
     queryFn: async () => {
-      if (!token) throw new Error("No token found");
-      const res = await fetch(`${API_BASE}/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(`Search terms fetch failed: ${res.status}`);
-      const json = await res.json();
-      return json.searchTerms ?? [];
+      if (!token) {
+        toast.error("Authentication required to load searches.");
+        return [];
+      }
+      try {
+        const res = await fetch(`${API_BASE}/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          toast.error(`Search terms fetch failed: ${res.status}`);
+          return [];
+        }
+        const json = await res.json();
+        return json.searchTerms ?? [];
+      } catch (err) {
+        console.error("Error fetching search terms:", err);
+        toast.error("An unexpected error occurred loading searches.");
+        return [];
+      }
     },
     refetchInterval: 5000,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
+  const termsWithIndex = searchTerms.map((term, index) => ({ term, index }));
+
+  const visibleSearchTerms = termsWithIndex.filter(
+    (item) =>
+      !optimisticallyDeleted.some(
+        (del) => del.term === item.term && del.index === item.index
+      )
+  );
+
   useEffect(() => {
-    setLocalSearchTerms(searchTerms);
+    setOptimisticallyDeleted((prev) =>
+      prev.filter((del) =>
+        searchTerms[del.index] === del.term
+      )
+    );
   }, [searchTerms]);
 
   if (isLoading) return <p className="text-gray-300 p-4">Loading searches...</p>;
@@ -58,50 +85,60 @@ export const CareerGistSearches = ({
           {Array.from({ length: 3 }).map((_, colIndex) => {
             const start = colIndex * 5;
             const end = start + 5;
-            const terms = localSearchTerms.slice(start, end);
-            const colKey = terms[0] ? `col-${terms[0]}` : `col-empty-${colIndex}`;
+            const terms = visibleSearchTerms.slice(start, end);
+            const colKey = terms[0]
+              ? `col-${terms[0].term}-${terms[0].index}`
+              : `col-empty-${colIndex}`;
             return (
               <div key={colKey} className="space-y-2">
-                {terms.map((term, localIndex) => {
-                  const globalIndex = start + localIndex;
-                  return (
-                    <span
-                      key={`term-${globalIndex}`}
-                      className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold flex justify-between items-center"
-                    >
-                      <span>{term}</span>
-                      <button
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(
-                              `${API_BASE}/analytics/search-history/${encodeURIComponent(term)}`,
-                              {
-                                method: "DELETE",
-                                headers: { Authorization: `Bearer ${token}` },
-                              }
-                            );
-                            if (res.ok) {
-                              setLocalSearchTerms((prev) =>
-                                prev.filter((_, i) => i !== globalIndex)
-                              );
-                              toast.success(`Deleted "${term}"`);
-                              onTermDeleted?.(term, globalIndex);
-                            } else {
-                              toast.error("Failed to delete term.");
+                {terms.map(({ term, index }) => (
+                  <span
+                    key={`term-${index}-${term}`}
+                    className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold flex justify-between items-center"
+                  >
+                    <span>{term}</span>
+                    <button
+                      onClick={async (): Promise<void> => {
+                        const id = { term, index };
+                        setOptimisticallyDeleted((prev) => [...prev, id]);
+                        try {
+                          const res = await fetch(
+                            `${API_BASE}/analytics/search-history/${encodeURIComponent(term)}`,
+                            {
+                              method: "DELETE",
+                              headers: { Authorization: `Bearer ${token}` },
                             }
-                          } catch (err) {
-                            console.error("Error deleting term:", err);
-                            toast.error("An error occurred while deleting.");
+                          );
+                          if (res.ok) {
+                            toast.success(`Deleted "${term}"`);
+                            onTermDeleted?.(term, index);
+                          } else {
+                            toast.error("Failed to delete term.");
+                            setOptimisticallyDeleted((prev) =>
+                              prev.filter(
+                                (d) =>
+                                  d.term !== term || d.index !== index
+                              )
+                            );
                           }
-                        }}
-                        className="ml-2 text-white hover:text-red-300"
-                        aria-label={`Delete ${term}`}
-                      >
-                        ❌
-                      </button>
-                    </span>
-                  );
-                })}
+                        } catch (err) {
+                          console.error("Error deleting term:", err);
+                          toast.error("An error occurred while deleting.");
+                          setOptimisticallyDeleted((prev) =>
+                            prev.filter(
+                              (d) =>
+                                d.term !== term || d.index !== index
+                            )
+                          );
+                        }
+                      }}
+                      className="ml-2 text-white hover:text-red-300"
+                      aria-label={`Delete ${term}`}
+                    >
+                      ❌
+                    </button>
+                  </span>
+                ))}
               </div>
             );
           })}
