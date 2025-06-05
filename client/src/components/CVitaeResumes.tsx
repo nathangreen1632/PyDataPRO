@@ -20,7 +20,7 @@ export const CVitaeResumes = ({ resumes }: { resumes: Resume[] }) => (
       </h2>
     </a>
     <div className="bg-gray-800 rounded-xl p-4 shadow">
-      {resumes.length >= 6 ? (
+      {resumes.length >= 3 ? (
         <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           {Array.from({ length: 3 }).map((_, colIndex) => {
             const start = colIndex * 5;
