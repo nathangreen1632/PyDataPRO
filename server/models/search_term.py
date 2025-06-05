@@ -12,6 +12,8 @@ class SearchTerm(Base):
 
     userId = Column("userId", UUID(as_uuid=True), ForeignKey("Users.id"), nullable=False)
     query = Column(String, nullable=False)
+    title = Column(String, nullable=True)
+    location = Column(String, nullable=True)
 
     createdAt = Column("createdAt", DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updatedAt = Column("updatedAt", DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
