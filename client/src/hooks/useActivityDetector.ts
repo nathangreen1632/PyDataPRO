@@ -12,11 +12,11 @@ interface UseActivityDetectorOptions {
 }
 
 const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = [
-  'keydown',      // User typed something
-  'mousedown',    // Mouse clicked
-  'touchstart',   // Finger touched screen (intentional)
-  'scroll',       // User is actively scrolling
-  'wheel',        // Mouse wheel used (usually intentional)
+  'keydown',
+  'mousedown',
+  'touchstart',
+  'scroll',
+  'wheel',
 ];
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000;

@@ -385,3 +385,4 @@ cython_debug/
 .idea
 .venv/
 .env
+BUGS.md
