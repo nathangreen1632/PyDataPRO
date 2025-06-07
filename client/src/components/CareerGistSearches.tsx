@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { fetchSearchTerms } from "../helpers/fetchSearchTerms";
 import toast from "react-hot-toast";
 import { API_BASE } from "../utils/api";
+
+interface CareerGistSearchesProps {
+  token: string;
+  onTermDeleted?: (term: string, index: number) => void;
+}
+
+interface SearchTerm {
+  term: string;
+  index: number;
+}
 
 export const CareerGistSearches = ({
   token,
   onTermDeleted,
-}: {
-  token: string;
-  onTermDeleted?: (term: string, index: number) => void;
-}) => {
+}: CareerGistSearchesProps) => {
   const [optimisticallyDeleted, setOptimisticallyDeleted] = useState<
-    { term: string; index: number }[]
+    SearchTerm[]
   >([]);
 
   const {
@@ -20,51 +28,82 @@ export const CareerGistSearches = ({
     error,
   } = useQuery<string[]>({
     queryKey: ["searchTerms", token],
-    queryFn: async () => {
-      if (!token) {
-        toast.error("Authentication required to load searches.");
-        return [];
-      }
-      try {
-        const res = await fetch(`${API_BASE}/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          toast.error(`Search terms fetch failed: ${res.status}`);
-          return [];
-        }
-        const json = await res.json();
-        return json.searchTerms ?? [];
-      } catch (err) {
-        console.error("Error fetching search terms:", err);
-        toast.error("An unexpected error occurred loading searches.");
-        return [];
-      }
-    },
+    queryFn: () => fetchSearchTerms(token),
     refetchInterval: 5000,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
 
-  const termsWithIndex = searchTerms.map((term, index) => ({ term, index }));
+  const termsWithIndex: SearchTerm[] = useMemo(
+    () => searchTerms.map((t, i) => ({ term: t, index: i })),
+    [searchTerms]
+  );
 
-  const visibleSearchTerms = termsWithIndex.filter(
-    (item) =>
-      !optimisticallyDeleted.some(
-        (del) => del.term === item.term && del.index === item.index
-      )
+  const visibleSearchTerms = useMemo(
+    () =>
+      termsWithIndex.filter(
+        (item) =>
+          !optimisticallyDeleted.some(
+            (del) => del.term === item.term && del.index === item.index
+          )
+      ),
+    [termsWithIndex, optimisticallyDeleted]
+  );
+
+  const columns = useMemo(
+    () =>
+      Array.from({ length: 3 }).map((_, colIndex) => {
+        const start = colIndex * 5;
+        const slice = visibleSearchTerms.slice(start, start + 5);
+        const key = slice[0]
+          ? `col-${slice[0].term}-${slice[0].index}`
+          : `col-empty-${colIndex}`;
+        return { key, items: slice };
+      }),
+    [visibleSearchTerms]
   );
 
   useEffect(() => {
     setOptimisticallyDeleted((prev) =>
-      prev.filter((del) =>
-        searchTerms[del.index] === del.term
-      )
+      prev.filter((del) => searchTerms[del.index] === del.term)
     );
   }, [searchTerms]);
 
-  if (isLoading) return <p className="text-gray-300 p-4">Loading searches...</p>;
-  if (error) return <p className="text-red-400 p-4">Failed to load searches.</p>;
+  const handleDelete = useCallback(
+    async (term: string, index: number) => {
+      const id = { term, index };
+      setOptimisticallyDeleted((prev) => [...prev, id]);
+
+      const res = await fetch(
+        `${API_BASE}/analytics/search-history/${encodeURIComponent(term)}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.ok) {
+        toast.success(`Deleted "${term}"`);
+        onTermDeleted?.(term, index);
+      } else {
+        // handle non-2xx status without throwing
+        console.error("Delete failed with status:", res.status);
+        toast.error("Failed to delete term.");
+        setOptimisticallyDeleted((prev) =>
+          prev.filter((d) => d.term !== term || d.index !== index)
+        );
+      }
+    },
+    [token, onTermDeleted]
+  );
+
+  if (isLoading) {
+    return <p className="text-gray-300 p-4">Loading searches...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-400 p-4">Failed to load searches.</p>;
+  }
 
   return (
     <section>
@@ -82,68 +121,43 @@ export const CareerGistSearches = ({
       </a>
       <div className="bg-gray-800 rounded-xl p-4 shadow">
         <div className="grid grid-cols-3 gap-x-4">
-          {Array.from({ length: 3 }).map((_, colIndex) => {
-            const start = colIndex * 5;
-            const end = start + 5;
-            const terms = visibleSearchTerms.slice(start, end);
-            const colKey = terms[0]
-              ? `col-${terms[0].term}-${terms[0].index}`
-              : `col-empty-${colIndex}`;
-            return (
-              <div key={colKey} className="space-y-2">
-                {terms.map(({ term, index }) => (
-                  <span
-                    key={`term-${index}-${term}`}
-                    className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold flex justify-between items-center"
-                  >
-                    <span>{term}</span>
-                    <button
-                      onClick={async (): Promise<void> => {
-                        const id = { term, index };
-                        setOptimisticallyDeleted((prev) => [...prev, id]);
-                        try {
-                          const res = await fetch(
-                            `${API_BASE}/analytics/search-history/${encodeURIComponent(term)}`,
-                            {
-                              method: "DELETE",
-                              headers: { Authorization: `Bearer ${token}` },
-                            }
-                          );
-                          if (res.ok) {
-                            toast.success(`Deleted "${term}"`);
-                            onTermDeleted?.(term, index);
-                          } else {
-                            toast.error("Failed to delete term.");
-                            setOptimisticallyDeleted((prev) =>
-                              prev.filter(
-                                (d) =>
-                                  d.term !== term || d.index !== index
-                              )
-                            );
-                          }
-                        } catch (err) {
-                          console.error("Error deleting term:", err);
-                          toast.error("An error occurred while deleting.");
-                          setOptimisticallyDeleted((prev) =>
-                            prev.filter(
-                              (d) =>
-                                d.term !== term || d.index !== index
-                            )
-                          );
-                        }
-                      }}
-                      className="ml-2 text-white hover:text-red-300"
-                      aria-label={`Delete ${term}`}
-                    >
-                      ❌
-                    </button>
-                  </span>
-                ))}
-              </div>
-            );
-          })}
+          {columns.map(({ key, items }) => (
+            <div key={key} className="space-y-2">
+              {items.map(({ term, index }) => (
+                <SearchTermPill
+                  key={`${term}-${index}`}
+                  term={term}
+                  index={index}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
+interface SearchTermPillProps {
+  term: string;
+  index: number;
+  onDelete: (term: string, index: number) => void;
+}
+const SearchTermPill = ({
+  term,
+  index,
+  onDelete,
+}: SearchTermPillProps) => (
+  <span className="bg-gray-700 px-3 py-1 rounded-full text-sm font-semibold flex justify-between items-center">
+    <span>{term}</span>
+    <button
+      onClick={() => onDelete(term, index)}
+      className="ml-2 text-white hover:text-red-300"
+      aria-label={`Delete ${term}`}
+    >
+      ❌
+    </button>
+  </span>
+);
+
