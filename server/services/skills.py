@@ -7,7 +7,17 @@ import re
 nlp = spacy.load("en_core_web_trf")
 
 def extract_skills_section(resume_text: str) -> str:
-    match = re.search(r"(?i)#+\s*Skills\s*\n+(.*?)(\n#+|\Z)", resume_text, re.DOTALL)
+    markdown_match = re.search(r"```markdown\n(.*?)\n```", resume_text, re.DOTALL)
+    if markdown_match:
+        resume_content = markdown_match.group(1)
+    else:
+        resume_content = resume_text
+
+    match = re.search(
+        r"##\s*Skills\s*\n(.*)(?=\n##\s*(?:Education|Experience|Certifications)|\Z)",
+        resume_content,
+        re.DOTALL | re.IGNORECASE
+    )
     if match:
         return match.group(1).strip()
     return ""
