@@ -386,3 +386,4 @@ cython_debug/
 .venv/
 .env
 BUGS.md
+legacy_requirements.txt
