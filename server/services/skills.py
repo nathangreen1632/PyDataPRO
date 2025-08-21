@@ -4,7 +4,7 @@ from typing import List, Dict
 from sqlalchemy.orm import Session
 import re
 
-nlp = spacy.load("en_core_web_trf")
+nlp = spacy.load("en_core_web_sm")
 
 def extract_skills_section(resume_text: str) -> str:
     markdown_match = re.search(r"```markdown\n(.*?)\n```", resume_text, re.DOTALL)
