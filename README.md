@@ -42,7 +42,7 @@ By ingesting resume content, job searches, favorited jobs, and keyword trends fr
   - Recent search terms
 
 ### 🔹 2. AI-Powered Career Suggestions
-- Extracts only from the **"Skills" section** of resumes using `spaCy` and `en_core_web_trf`
+- Extracts only from the **"Skills" section** of resumes using `spaCy` and `en_core_web_sm`
 - Matches skills to relevant job roles via OpenAI
 - Saves user suggestions with timestamp in a shared PostgreSQL table
 
