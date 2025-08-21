@@ -4,7 +4,7 @@ import spacy
 from typing import Set
 
 # load once
-_nlp = spacy.load("en_core_web_trf")
+_nlp = spacy.load("en_core_web_sm")
 
 # header-capture regex
 _skills_re = re.compile(
