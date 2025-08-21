@@ -95,7 +95,7 @@ By ingesting resume content, job searches, favorited jobs, and keyword trends fr
 |-------------|----------------------------------------------------|
 | **Frontend** | React, Vite, TailwindCSS                           |
 | **Backend**  | FastAPI, Python 3.11, `python-jose`, dotenv        |
-| **AI/NLP**   | OpenAI GPT-4, spaCy (transformer model), LangChain |
+| **AI/NLP**   | OpenAI GPT-4, spaCy, LangChain                     |
 | **Database** | PostgreSQL (shared between all three apps)         |
 | **Hosting**  | Render.com (backend + DB + frontend)               |
 
