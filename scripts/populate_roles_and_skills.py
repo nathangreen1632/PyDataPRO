@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 DB_URL = os.getenv("DATABASE_URL")
 
-nlp = spacy.load("en_core_web_trf")
+nlp = spacy.load("en_core_web_sm")
 
 def extract_skills(text: str):
     doc = nlp(text)
